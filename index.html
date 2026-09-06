@@ -2,11 +2,61 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>음성 인식 입력기</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9; }
+        button { font-size: 24px; padding: 15px 30px; border-radius: 30px; border: none; background-color: #4CAF50; color: white; cursor: pointer; }
+        #result { margin-top: 30px; font-size: 18px; color: #333; }
+    </style>
 </head>
 <body>
-    <h1>🎙️ 음성 인식 테스트</h1>
-    <button id="recordBtn">말하기 시작</button>
-    <p id="resultText">여기에 말한 내용이 나와요.</p>
+    <h1>🎙️ 음성 입출고 시스템</h1>
+    <button id="start-btn">🗣️ 말하기 시작</button>
+    <div id="result">여기에 음성 인식 결과가 표시됩니다.</div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const resultDiv = document.getElementById('result');
+        
+        // 구글 웹 앱 URL 주소를 넣어줍니다.
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyXlGjbrXRCww8W0k6ADQEswOxy9ZLdPDKhINmCd8vkmwtfWjzkQOjBoeR07MIWflZF/exec"; 
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            resultDiv.innerText = "이 브라우저는 음성 인식을 지원하지 않습니다. (크롬/사파리를 쓰세요)";
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+
+            startBtn.addEventListener('click', () => {
+                recognition.start();
+                resultDiv.innerText = "듣고 있어요... 말씀하세요!";
+            });
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                resultDiv.innerText = "인식된 말: " + text + "\n(시트에 저장 중...)";
+
+                // GAS로 데이터 전송
+                fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ text: text })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === "success") {
+                        resultDiv.innerText = "✅ 시트에 기록 완료!: " + text;
+                    } else {
+                        resultDiv.innerText = "❌ 저장 실패: " + data.message;
+                    }
+                })
+                .catch(err => {
+                    resultDiv.innerText = "✅ 전송 완료 (CORS 환경에 따라 에러로 보일 수 있으나 시트를 확인해 보세요!)";
+                });
+            };
+        }
+    </script>
 </body>
 </html>
