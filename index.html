@@ -97,14 +97,18 @@
 
 
     // =========================================================
-    // ⭐ 음성 입력 설정
+    // ⭐ 음성 입력 최대 시간
+    // =========================================================
+    //
+    // 사장님이 직접 "말하기 완료"를 누르지 않아도
+    // 최대 30초가 지나면 자동으로 마무리합니다.
+    //
+    // 평소에는 30초까지 기다리지 않습니다.
+    // 사장님이 완료 버튼을 누르면 바로 끝납니다.
+    //
     // =========================================================
 
-    // 최대 음성 입력 시간
-    // 사장님이 직접 완료 버튼을 누르지 않아도
-    // 최대 30초가 지나면 자동으로 완료합니다.
-    const MAX_RECORDING_TIME =
-        30 * 1000;
+    const MAX_RECORDING_TIME = 30000;
 
 
     // =========================================================
@@ -154,87 +158,226 @@
             "ko-KR";
 
 
-        // ⭐ 중요
-        // 한 번의 짧은 문장만 듣는 것이 아니라
-        // 계속해서 음성을 받도록 설정합니다.
+        // =====================================================
+        // ⭐ 핵심 설정
+        // =====================================================
+        //
+        // 한 문장만 듣고 바로 끝내지 않도록 합니다.
+        //
+        // 단,
+        // 브라우저가 자체적으로 음성인식을 종료하는 경우에는
+        // 필요한 경우에만 다시 연결합니다.
+        //
+        // =====================================================
+
         recognition.continuous =
             true;
 
-
-        // 말하는 도중에도 화면에 글자를 보여줍니다.
         recognition.interimResults =
             true;
 
-
-        // 한 번의 음성인식 세션에서 최대한 많은 결과를 유지
         recognition.maxAlternatives =
             1;
 
 
         // =====================================================
-        // ⭐ 음성 상태 변수
+        // ⭐ 상태 변수
         // =====================================================
 
-        // 사용자가 현재 녹음 중인지
+        // 현재 사용자가 말하고 있는 중인가?
         let isRecording =
             false;
 
 
-        // 사용자가 "말하기 완료"를 눌렀는지
-        let userFinished =
+        // 사용자가 "말하기 완료"를 눌렀는가?
+        let finishRequested =
             false;
 
 
-        // 최종 확정된 음성 문장
+        // 현재 음성인식 세션이 실제로 실행 중인가?
+        let recognitionRunning =
+            false;
+
+
+        // 최종 확정된 문장
         let finalTranscript =
             "";
 
 
-        // 현재 말하는 중인 임시 문장
+        // 현재 인식 중인 임시 문장
         let interimTranscript =
             "";
 
 
-        // 자동 종료 방지용 타이머
+        // 마지막으로 화면에 보여준 전체 문장
+        let displayedTranscript =
+            "";
+
+
+        // 최대 녹음 시간 타이머
         let recordingTimer =
             null;
 
 
-        // 중복 전송 방지
+        // 음성인식 재시작 타이머
+        let restartTimer =
+            null;
+
+
+        // GAS 중복 전송 방지
         let isSending =
             false;
 
 
         // =====================================================
-        // 🎤 화면에 현재 음성 내용 표시
+        // 🧹 공백 정리 함수
         // =====================================================
 
-        function showTranscript() {
+        function cleanText(text) {
 
-            const fullText =
-                (
+            return String(text || "")
+                .replace(/\s+/g, " ")
+                .trim();
+
+        }
+
+
+        // =====================================================
+        // 🧹 중복 문장 방지 함수
+        // =====================================================
+        //
+        // 브라우저가 같은 결과를 다시 보내는 경우
+        // 똑같은 문장이 두 번 붙지 않도록 합니다.
+        //
+        // =====================================================
+
+        function appendWithoutDuplicate(
+            base,
+            addition
+        ) {
+
+            base =
+                cleanText(base);
+
+            addition =
+                cleanText(addition);
+
+
+            if (!addition) {
+                return base;
+            }
+
+
+            if (!base) {
+                return addition;
+            }
+
+
+            // 완전히 같은 경우
+            if (base === addition) {
+                return base;
+            }
+
+
+            // 이미 base의 끝부분에 들어있는 경우
+            if (base.endsWith(addition)) {
+                return base;
+            }
+
+
+            // addition의 앞부분이 base의 끝부분과
+            // 겹치는 경우를 찾아 중복 제거
+            const maxOverlap =
+                Math.min(
+                    base.length,
+                    addition.length
+                );
+
+
+            for (
+                let length = maxOverlap;
+                length >= 2;
+                length--
+            ) {
+
+                const baseEnd =
+                    base.slice(
+                        -length
+                    );
+
+                const additionStart =
+                    addition.slice(
+                        0,
+                        length
+                    );
+
+
+                if (
+                    baseEnd ===
+                    additionStart
+                ) {
+
+                    return cleanText(
+                        base +
+                        " " +
+                        addition.slice(length)
+                    );
+
+                }
+
+            }
+
+
+            return cleanText(
+                base +
+                " " +
+                addition
+            );
+
+        }
+
+
+        // =====================================================
+        // 📺 현재 텍스트 화면 표시
+        // =====================================================
+
+        function showCurrentText() {
+
+            const combined =
+                cleanText(
                     finalTranscript +
+                    " " +
                     interimTranscript
-                ).trim();
+                );
 
 
-            if (!fullText) {
+            displayedTranscript =
+                combined;
+
+
+            if (!combined) {
+
+                resultDiv.className =
+                    "listening";
 
                 resultDiv.innerText =
                     "🎧 듣고 있어요...\n\n" +
-                    "편하게 말씀하세요.\n" +
+                    "편하게 말씀하세요.\n\n" +
                     "중간에 잠깐 멈춰도 괜찮습니다.";
 
                 return;
             }
 
 
+            resultDiv.className =
+                "listening";
+
             resultDiv.innerText =
                 "🎧 듣고 있어요...\n\n" +
                 "🗣️ " +
-                fullText +
+                combined +
                 "\n\n" +
-                "말씀을 다 하셨으면\n" +
+                "다 말씀하셨으면\n" +
                 "🛑 「말하기 완료」를 눌러주세요.";
 
         }
@@ -251,22 +394,34 @@
             }
 
 
+            if (finishRequested) {
+                return;
+            }
+
+
+            if (recognitionRunning) {
+                return;
+            }
+
+
             try {
+
+                recognitionRunning =
+                    true;
 
                 recognition.start();
 
+                console.log(
+                    "🎤 음성인식 시작"
+                );
+
             } catch (error) {
 
-                /*
-                 * 이미 실행 중인 경우에는
-                 * 다시 start()를 호출하지 않습니다.
-                 *
-                 * 음성인식 API 특성상 발생할 수 있는
-                 * 중복 시작 오류를 무시합니다.
-                 */
+                recognitionRunning =
+                    false;
 
                 console.log(
-                    "음성인식 재시작:",
+                    "음성인식 시작 무시:",
                     error
                 );
 
@@ -276,7 +431,7 @@
 
 
         // =====================================================
-        // 🗣️ "말하기 시작" 버튼
+        // 🗣️ 말하기 시작
         // =====================================================
 
         startBtn.addEventListener(
@@ -292,7 +447,10 @@
                 isRecording =
                     true;
 
-                userFinished =
+                finishRequested =
+                    false;
+
+                recognitionRunning =
                     false;
 
                 finalTranscript =
@@ -301,8 +459,21 @@
                 interimTranscript =
                     "";
 
+                displayedTranscript =
+                    "";
+
                 isSending =
                     false;
+
+
+                // 기존 타이머 제거
+                clearTimeout(
+                    recordingTimer
+                );
+
+                clearTimeout(
+                    restartTimer
+                );
 
 
                 // 버튼 상태
@@ -319,7 +490,6 @@
                 resultDiv.className =
                     "listening";
 
-
                 resultDiv.innerText =
                     "🎧 듣고 있어요...\n\n" +
                     "편하게 말씀하세요.\n" +
@@ -332,16 +502,13 @@
                 // ⭐ 최대 30초 안전장치
                 // =================================================
 
-                clearTimeout(
-                    recordingTimer
-                );
-
-
                 recordingTimer =
                     setTimeout(
                         () => {
 
-                            if (isRecording) {
+                            if (
+                                isRecording
+                            ) {
 
                                 finishRecording();
 
@@ -360,7 +527,7 @@
 
 
         // =====================================================
-        // 🛑 "말하기 완료" 버튼
+        // 🛑 말하기 완료
         // =====================================================
 
         stopBtn.addEventListener(
@@ -374,7 +541,7 @@
 
 
         // =====================================================
-        // 🛑 음성 입력 종료 처리
+        // 🛑 최종 음성 입력 종료
         // =====================================================
 
         function finishRecording() {
@@ -384,12 +551,12 @@
             }
 
 
-            // 녹음 상태 종료
+            // 완료 요청
+            finishRequested =
+                true;
+
             isRecording =
                 false;
-
-            userFinished =
-                true;
 
 
             // 타이머 제거
@@ -397,11 +564,29 @@
                 recordingTimer
             );
 
+            clearTimeout(
+                restartTimer
+            );
 
-            // 음성인식 중지
+
+            // 화면
+            resultDiv.className =
+                "";
+
+            resultDiv.innerText =
+                "⏳ 말씀을 정리하는 중입니다...";
+
+
+            // 더 이상 새 음성인식 시작 금지
             try {
 
-                recognition.stop();
+                if (
+                    recognitionRunning
+                ) {
+
+                    recognition.stop();
+
+                }
 
             } catch (error) {
 
@@ -413,23 +598,76 @@
             }
 
 
-            // 버튼 상태
-            startBtn.disabled =
+            /*
+             * 음성인식이 이미 종료된 상태에서
+             * 완료 버튼을 눌렀다면
+             * onend가 호출되지 않을 수 있습니다.
+             *
+             * 그래서 아주 짧게 기다린 후
+             * 현재까지 확보한 최종 문장을 확인합니다.
+             */
+
+            setTimeout(
+                () => {
+
+                    if (
+                        finishRequested &&
+                        !isSending
+                    ) {
+
+                        finalizeAndSend();
+
+                    }
+
+                },
+                700
+            );
+
+        }
+
+
+        // =====================================================
+        // 📝 최종 문장 확정 후 GAS 전송
+        // =====================================================
+
+        function finalizeAndSend() {
+
+            if (isSending) {
+                return;
+            }
+
+
+            isSending =
                 true;
 
-            stopBtn.disabled =
-                true;
 
-            startBtn.innerText =
-                "📤 전송 중...";
-
-
-            // 최종 텍스트
-            const text =
-                finalTranscript.trim();
+            // 최종 문장
+            let text =
+                cleanText(
+                    finalTranscript
+                );
 
 
-            // 아무 말도 하지 않은 경우
+            /*
+             * 혹시 마지막 순간에 final로 확정되지 않고
+             * interim으로 남아 있다면
+             * 그것도 마지막 안전장치로 포함합니다.
+             */
+
+            if (
+                interimTranscript
+            ) {
+
+                text =
+                    appendWithoutDuplicate(
+                        text,
+                        interimTranscript
+                    );
+
+            }
+
+
+            // 그래도 비어 있으면
             if (!text) {
 
                 isSending =
@@ -437,6 +675,9 @@
 
                 startBtn.disabled =
                     false;
+
+                stopBtn.disabled =
+                    true;
 
                 startBtn.innerText =
                     "🗣️ 다시 말하기";
@@ -446,16 +687,29 @@
 
                 resultDiv.innerText =
                     "❌ 음성 내용이 없습니다.\n\n" +
-                    "다시 말해주세요.";
+                    "다시 말씀해주세요.";
 
                 return;
             }
 
 
-            // =================================================
-            // ⭐ 여기서 딱 한 번만 GAS로 전송
-            // =================================================
+            // 임시 결과 초기화
+            interimTranscript =
+                "";
 
+
+            // 최종 화면
+            resultDiv.className =
+                "";
+
+            resultDiv.innerText =
+                "📝 최종 음성 내용\n\n" +
+                text +
+                "\n\n" +
+                "📤 Google 시트로 보내는 중...";
+
+
+            // GAS 전송
             sendToGAS(text);
 
         }
@@ -468,16 +722,29 @@
         recognition.onresult =
             (event) => {
 
-
-                // 녹음 중이 아니라면 무시
-                if (!isRecording) {
+                if (
+                    !isRecording &&
+                    !finishRequested
+                ) {
                     return;
                 }
 
 
-                interimTranscript =
+                let newFinalText =
                     "";
 
+                let newInterimText =
+                    "";
+
+
+                /*
+                 * ⭐ 매우 중요
+                 *
+                 * event.resultIndex부터만 읽습니다.
+                 *
+                 * 이전 결과를 매번 다시 합치지 않아서
+                 * 중복되는 문제를 줄입니다.
+                 */
 
                 for (
                     let i = event.resultIndex;
@@ -486,90 +753,143 @@
                 ) {
 
                     const transcript =
-                        event.results[i][0].transcript;
+                        cleanText(
+                            event.results[i][0].transcript
+                        );
 
 
-                    // ⭐ 최종 결과
+                    if (!transcript) {
+                        continue;
+                    }
+
+
                     if (
                         event.results[i].isFinal
                     ) {
 
-                        finalTranscript +=
-                            transcript + " ";
+                        newFinalText =
+                            appendWithoutDuplicate(
+                                newFinalText,
+                                transcript
+                            );
 
-                    }
+                    } else {
 
-                    // ⭐ 아직 말하는 중인 임시 결과
-                    else {
-
-                        interimTranscript +=
-                            transcript;
+                        newInterimText =
+                            appendWithoutDuplicate(
+                                newInterimText,
+                                transcript
+                            );
 
                     }
 
                 }
 
 
-                showTranscript();
+                // 최종 문장에 추가
+                if (
+                    newFinalText
+                ) {
+
+                    finalTranscript =
+                        appendWithoutDuplicate(
+                            finalTranscript,
+                            newFinalText
+                        );
+
+                }
+
+
+                // 임시 문장은 현재 세션의 임시 결과
+                interimTranscript =
+                    newInterimText;
+
+
+                showCurrentText();
 
             };
 
 
         // =====================================================
-        // 🎤 음성인식이 자동으로 끝났을 때
+        // 🎤 음성인식 종료
         // =====================================================
 
         recognition.onend =
             () => {
 
-
-                /*
-                 * ⭐⭐⭐ 핵심 기능 ⭐⭐⭐
-                 *
-                 * 휴대폰 브라우저는 continuous=true여도
-                 * 잠깐 침묵하면 음성인식을 종료시키는 경우가 있습니다.
-                 *
-                 * 그래서 사장님이 아직 녹음 중이라면
-                 * 자동으로 다시 시작합니다.
-                 *
-                 * 즉,
-                 *
-                 * "삼성상사..."
-                 *
-                 * 잠깐 생각
-                 *
-                 * "...푸로찜 15KG..."
-                 *
-                 * 잠깐 생각
-                 *
-                 * "...3박스 출고"
-                 *
-                 * 이런 식으로 말해도
-                 * 계속 받을 수 있게 합니다.
-                 */
+                recognitionRunning =
+                    false;
 
 
+                console.log(
+                    "🎤 음성인식 세션 종료"
+                );
+
+
+                // 사용자가 완료한 경우
                 if (
-                    isRecording &&
-                    !userFinished
+                    finishRequested
                 ) {
 
-                    resultDiv.className =
-                        "listening";
+                    /*
+                     * finishRecording()의
+                     * 안전 타이머가 최종 전송을 담당합니다.
+                     */
+
+                    return;
+
+                }
 
 
-                    resultDiv.innerText =
-                        "🎧 계속 듣고 있어요...\n\n" +
-                        "잠깐 멈추셔도 괜찮습니다.";
+                // 녹음 중이 아니라면 종료
+                if (
+                    !isRecording
+                ) {
+
+                    return;
+
+                }
 
 
-                    // 아주 짧게 기다렸다가 다시 시작
+                /*
+                 * ⭐⭐⭐ 핵심 ⭐⭐⭐
+                 *
+                 * 브라우저가 잠깐의 침묵 때문에
+                 * 음성인식을 끝내는 경우가 있습니다.
+                 *
+                 * 이때 기존 텍스트를 삭제하지 않습니다.
+                 *
+                 * 그리고 바로 재시작하지 않고
+                 * 600ms 정도 기다립니다.
+                 *
+                 * 이렇게 해야 start()가 연속으로 호출되어
+                 * 브라우저가 이상하게 동작하는 것을 줄일 수 있습니다.
+                 */
+
+                resultDiv.className =
+                    "listening";
+
+                resultDiv.innerText =
+                    "🎧 계속 듣고 있어요...\n\n" +
+                    (
+                        displayedTranscript ||
+                        "편하게 이어서 말씀하세요."
+                    );
+
+
+                clearTimeout(
+                    restartTimer
+                );
+
+
+                restartTimer =
                     setTimeout(
                         () => {
 
                             if (
                                 isRecording &&
-                                !userFinished
+                                !finishRequested &&
+                                !recognitionRunning
                             ) {
 
                                 startRecognition();
@@ -577,21 +897,8 @@
                             }
 
                         },
-                        200
+                        600
                     );
-
-
-                    return;
-                }
-
-
-                // 사용자가 완료한 경우
-                if (userFinished) {
-
-                    startBtn.innerText =
-                        "📤 전송 중...";
-
-                }
 
             };
 
@@ -603,9 +910,8 @@
         recognition.onerror =
             (event) => {
 
-
                 console.log(
-                    "음성인식 오류:",
+                    "🎤 음성인식 오류:",
                     event.error
                 );
 
@@ -613,10 +919,9 @@
                 /*
                  * no-speech
                  *
-                 * 말을 잠깐 안 했다는 뜻입니다.
+                 * 말을 잠깐 하지 않았다는 의미입니다.
                  *
-                 * 이 경우는 오류로 처리하지 않고
-                 * 다시 듣도록 합니다.
+                 * 이것을 치명적인 오류로 처리하지 않습니다.
                  */
 
                 if (
@@ -626,7 +931,7 @@
 
                     if (
                         isRecording &&
-                        !userFinished
+                        !finishRequested
                     ) {
 
                         resultDiv.className =
@@ -634,7 +939,10 @@
 
                         resultDiv.innerText =
                             "🎧 계속 듣고 있어요...\n\n" +
-                            "편하게 이어서 말씀하세요.";
+                            (
+                                displayedTranscript ||
+                                "편하게 이어서 말씀하세요."
+                            );
 
                     }
 
@@ -644,12 +952,13 @@
 
                 /*
                  * aborted
-                 *
-                 * 음성인식을 다시 시작하거나
-                 * 사용자가 종료했을 때 발생할 수 있습니다.
-                 *
-                 * 녹음 중이면 무시합니다.
-                 */
+         *
+         * 브라우저가 음성인식을 종료하면서
+         * 발생할 수 있습니다.
+         *
+         * 이 경우 onend에서 필요한 경우
+         * 다시 연결합니다.
+         */
 
                 if (
                     event.error ===
@@ -660,19 +969,28 @@
                 }
 
 
-                // 그 외 진짜 오류
+                /*
+                 * 네트워크나 권한 등
+                 * 실제 문제가 발생한 경우
+                 */
+
                 if (
-                    isRecording
+                    isRecording &&
+                    !finishRequested
                 ) {
 
                     isRecording =
                         false;
 
-                    userFinished =
+                    finishRequested =
                         true;
 
                     clearTimeout(
                         recordingTimer
+                    );
+
+                    clearTimeout(
+                        restartTimer
                     );
 
 
@@ -707,16 +1025,6 @@
     function sendToGAS(text) {
 
 
-        // 중복 전송 방지
-        if (isSending) {
-            return;
-        }
-
-
-        isSending =
-            true;
-
-
         resultDiv.className =
             "";
 
@@ -730,11 +1038,10 @@
         /*
          * 중요!
          *
-         * application/json을 사용하면 브라우저가
-         * CORS 사전 요청(OPTIONS)을 발생시킬 수 있습니다.
+         * 기존 정상 작동 방식 그대로 유지합니다.
          *
-         * 그래서 기존과 동일하게
-         * text/plain 방식으로 보냅니다.
+         * application/json을 사용하지 않고
+         * text/plain으로 보냅니다.
          */
 
         fetch(
@@ -784,9 +1091,11 @@
                     "📊 Google 시트에 저장을 요청했습니다.";
 
 
-                // 다시 말하기 버튼
                 startBtn.disabled =
                     false;
+
+                stopBtn.disabled =
+                    true;
 
                 startBtn.innerText =
                     "🗣️ 다시 말하기";
@@ -803,11 +1112,6 @@
                 );
 
 
-                /*
-                 * 여기서는 무조건
-                 * '전송완료'라고 거짓말하지 않습니다.
-                 */
-
                 resultDiv.className =
                     "error";
 
@@ -817,9 +1121,11 @@
                     "잠시 후 Google 시트를 확인해주세요.";
 
 
-                // 다시 말하기 버튼
                 startBtn.disabled =
                     false;
+
+                stopBtn.disabled =
+                    true;
 
                 startBtn.innerText =
                     "🗣️ 다시 말하기";
