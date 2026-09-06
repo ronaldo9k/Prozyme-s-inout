@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -160,7 +161,6 @@
     음성 입출고 시스템
   </h1>
 
-
   <!-- ============================================================
        음성 입력 카드
        ============================================================ -->
@@ -186,7 +186,6 @@
     ></div>
 
   </div>
-
 
   <!-- ============================================================
        결과 카드
@@ -225,6 +224,7 @@ const SpeechRecognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
 
+
 if (!SpeechRecognition) {
 
   document.getElementById("result").innerHTML =
@@ -256,12 +256,10 @@ let displayedTranscript = "";
 
 let recordingTimer = null;
 
-let restartTimer = null;
-
 let isSending = false;
 
 
-// ⭐⭐⭐ 확인 대기 토큰
+// ⭐ 확인 대기 토큰
 
 let pendingToken = null;
 
@@ -401,6 +399,27 @@ function showCurrentText() {
 // ============================================================================
 // 🎙️ 8. 음성인식 시작
 // ============================================================================
+//
+// ⭐⭐⭐ 중요
+//
+// 예전 코드에는 음성인식이 끝나면
+//
+//   0.3초 기다림
+//       ↓
+//   다시 start()
+//       ↓
+//   다시 종료
+//       ↓
+//   다시 start()
+//
+// 하는 자동 재시작 구조가 있었습니다.
+//
+// 휴대폰에서 이것이 마이크 권한 팝업을 반복시키거나
+// 음성 입력을 방해할 수 있으므로 이번 버전에서는 제거했습니다.
+//
+// 한 번 시작한 음성인식은 사용자가
+// "말하기 완료"를 누를 때까지 유지하도록 합니다.
+// ============================================================================
 
 function startRecognition() {
 
@@ -408,11 +427,15 @@ function startRecognition() {
     return;
   }
 
-  try {
+  if (!recognition) {
+    return;
+  }
 
-    if (recognitionRunning) {
-      return;
-    }
+  if (recognitionRunning) {
+    return;
+  }
+
+  try {
 
     recognition.start();
 
@@ -440,7 +463,15 @@ startButton.addEventListener(
       return;
     }
 
-    // 이전 확인 결과 제거
+    if (!SpeechRecognition) {
+      return;
+    }
+
+
+    // ------------------------------------------------------------------------
+    // 이전 상태 초기화
+    // ------------------------------------------------------------------------
+
     pendingToken = null;
 
     finalTranscript = "";
@@ -453,12 +484,15 @@ startButton.addEventListener(
 
     isRecording = true;
 
+
     startButton.disabled = true;
 
     finishButton.disabled = false;
 
+
     timer.textContent =
       "⏱️ 최대 30초";
+
 
     result.innerHTML =
       '<div class="listening">' +
@@ -468,27 +502,31 @@ startButton.addEventListener(
 
 
     // ------------------------------------------------------------------------
-    // 음성인식 객체 생성
+    // ⭐ 음성인식 객체 생성
     // ------------------------------------------------------------------------
 
     recognition =
       new SpeechRecognition();
 
+
     recognition.lang =
       "ko-KR";
+
 
     recognition.continuous =
       true;
 
+
     recognition.interimResults =
       true;
+
 
     recognition.maxAlternatives =
       1;
 
 
     // ------------------------------------------------------------------------
-    // 음성 결과
+    // 🎙️ 음성 결과
     // ------------------------------------------------------------------------
 
     recognition.onresult =
@@ -497,6 +535,7 @@ startButton.addEventListener(
         let newFinal = "";
 
         let newInterim = "";
+
 
         for (
           let i = event.resultIndex;
@@ -508,6 +547,7 @@ startButton.addEventListener(
             cleanText(
               event.results[i][0].transcript
             );
+
 
           if (
             event.results[i].isFinal
@@ -542,8 +582,10 @@ startButton.addEventListener(
 
         }
 
+
         interimTranscript =
           newInterim;
+
 
         showCurrentText();
 
@@ -551,7 +593,25 @@ startButton.addEventListener(
 
 
     // ------------------------------------------------------------------------
-    // 음성인식 종료
+    // 🛑 음성인식 종료
+    // ------------------------------------------------------------------------
+    //
+    // ⭐⭐⭐ 가장 중요한 변경 부분
+    //
+    // 예전:
+    //
+    // onend → 0.3초 후 start()
+    //
+    // 이번:
+    //
+    // onend → 자동 재시작하지 않음
+    //
+    // 사용자가 "말하기 완료"를 누른 경우에는 정상 종료입니다.
+    //
+    // 만약 브라우저 자체가 음성 서비스를 중간에 종료시키면
+    // 화면에 상태를 알려줍니다.
+    //
+    // 이렇게 해야 계속 start()/stop()을 반복하지 않습니다.
     // ------------------------------------------------------------------------
 
     recognition.onend =
@@ -560,30 +620,25 @@ startButton.addEventListener(
         recognitionRunning =
           false;
 
+
         if (
           isRecording &&
           !finishRequested
         ) {
 
-          clearTimeout(
-            restartTimer
-          );
+          result.innerHTML =
+            '<div class="listening">' +
+            '🎙️ 음성인식이 잠시 멈췄어요.<br><br>' +
+            '말씀을 이어가시려면 다시 말하기를 눌러주세요.' +
+            '</div>' +
 
-          restartTimer =
-            setTimeout(
-              function() {
-
-                if (
-                  isRecording &&
-                  !finishRequested
-                ) {
-
-                  startRecognition();
-
-                }
-
-              },
-              300
+            (
+              displayedTranscript
+                ? '<br>' +
+                  escapeHtml(
+                    displayedTranscript
+                  )
+                : ""
             );
 
         }
@@ -592,7 +647,7 @@ startButton.addEventListener(
 
 
     // ------------------------------------------------------------------------
-    // 음성인식 오류
+    // ⚠️ 음성인식 오류
     // ------------------------------------------------------------------------
 
     recognition.onerror =
@@ -603,8 +658,10 @@ startButton.addEventListener(
           event.error
         );
 
+
         recognitionRunning =
           false;
+
 
         if (
           event.error ===
@@ -613,22 +670,63 @@ startButton.addEventListener(
 
           result.innerHTML =
             '<div class="error">' +
-            '❌ 마이크 권한이 필요합니다.<br><br>' +
-            '브라우저에서 마이크 권한을 허용해주세요.' +
+            '❌ 마이크 사용이 차단되었습니다.<br><br>' +
+            '브라우저 주소창의 마이크 권한을 허용해주세요.' +
             '</div>';
 
-          isRecording = false;
+
+          isRecording =
+            false;
+
+
+          finishRequested =
+            true;
+
 
           startButton.disabled =
             false;
 
+
           finishButton.disabled =
             true;
+
+
+          return;
+
+        }
+
+
+        if (
+          event.error ===
+          "no-speech"
+        ) {
+
+          // no-speech는 브라우저가
+          // 음성을 못 들었다는 뜻입니다.
+          //
+          // 여기서 자동 재시작하지 않습니다.
+          // 그래야 마이크 시작/종료가 반복되지 않습니다.
+
+          return;
+
+        }
+
+
+        if (
+          event.error ===
+          "aborted"
+        ) {
+
+          return;
 
         }
 
       };
 
+
+    // ------------------------------------------------------------------------
+    // 🟢 음성인식 실제 시작
+    // ------------------------------------------------------------------------
 
     recognition.onstart =
       function() {
@@ -643,12 +741,13 @@ startButton.addEventListener(
 
 
     // ------------------------------------------------------------------------
-    // 최대 30초
+    // ⏱️ 최대 30초
     // ------------------------------------------------------------------------
 
     clearTimeout(
       recordingTimer
     );
+
 
     recordingTimer =
       setTimeout(
@@ -692,19 +791,19 @@ function finishRecording() {
     return;
   }
 
+
   isRecording =
     false;
 
+
   finishRequested =
     true;
+
 
   clearTimeout(
     recordingTimer
   );
 
-  clearTimeout(
-    restartTimer
-  );
 
   if (recognition) {
 
@@ -723,13 +822,18 @@ function finishRecording() {
 
   }
 
+
   startButton.disabled =
     false;
+
 
   finishButton.disabled =
     true;
 
-  timer.textContent = "";
+
+  timer.textContent =
+    "";
+
 
   // --------------------------------------------------------------------------
   // 최종 문장
@@ -741,6 +845,7 @@ function finishRecording() {
       displayedTranscript
     );
 
+
   if (!text) {
 
     result.innerHTML =
@@ -749,9 +854,11 @@ function finishRecording() {
       '다시 말해주세요.' +
       '</div>';
 
+
     return;
 
   }
+
 
   finalizeAndSend(
     text
@@ -769,9 +876,19 @@ function finishRecording() {
 // action = analyze
 //
 // GAS는:
-// 음성 → 분석 → Sheet 저장 → 미리보기
 //
-//까지만 합니다.
+// 음성
+//   ↓
+// 분석
+//   ↓
+// Google Sheet 저장
+//   ↓
+// 미리보기
+//
+// 여기까지만 합니다.
+//
+// 사용자가 "맞아요. 노션에 등록"을 눌러야
+// 비로소 confirm 요청이 갑니다.
 // ============================================================================
 
 function finalizeAndSend(
@@ -782,13 +899,17 @@ function finalizeAndSend(
     return;
   }
 
-  isSending = true;
+
+  isSending =
+    true;
+
 
   result.innerHTML =
     '<div class="listening">' +
     '🔎 음성을 분석하고 있어요...<br><br>' +
     '잠시만 기다려주세요.' +
     '</div>';
+
 
   sendAnalyzeToGAS(
     text
@@ -840,6 +961,7 @@ async function sendAnalyzeToGAS(
     const raw =
       await response.text();
 
+
     console.log(
       "GAS 분석 응답:",
       raw
@@ -847,6 +969,7 @@ async function sendAnalyzeToGAS(
 
 
     let data;
+
 
     try {
 
@@ -891,7 +1014,7 @@ async function sendAnalyzeToGAS(
 
 
     // ------------------------------------------------------------------------
-    // ⭐⭐⭐ 미리보기 화면
+    // ⭐ 미리보기
     // ------------------------------------------------------------------------
 
     showPreview(
@@ -905,6 +1028,7 @@ async function sendAnalyzeToGAS(
       error
     );
 
+
     result.innerHTML =
       '<div class="error">' +
       '❌ 분석하지 못했어요.<br><br>' +
@@ -917,7 +1041,7 @@ async function sendAnalyzeToGAS(
       '<div class="button-group">' +
 
       '<button ' +
-      'id="retryButton" ' +
+      'id="retryButton"' +
       'style="background:#666;color:white;"' +
       '>' +
       '❌ 다시 말하기' +
@@ -931,6 +1055,7 @@ async function sendAnalyzeToGAS(
         "retryButton"
       );
 
+
     retryButton.addEventListener(
       "click",
       function() {
@@ -940,9 +1065,11 @@ async function sendAnalyzeToGAS(
       }
     );
 
+
   } finally {
 
-    isSending = false;
+    isSending =
+      false;
 
   }
 
@@ -1151,6 +1278,7 @@ async function confirmNotionRegistration() {
     return;
   }
 
+
   isSending =
     true;
 
@@ -1159,6 +1287,7 @@ async function confirmNotionRegistration() {
     document.getElementById(
       "confirmButton"
     );
+
 
   const retryButton =
     document.getElementById(
@@ -1175,6 +1304,7 @@ async function confirmNotionRegistration() {
       "⏳ 노션에 등록 중...";
 
   }
+
 
   if (retryButton) {
 
@@ -1234,6 +1364,7 @@ async function confirmNotionRegistration() {
 
 
     let data;
+
 
     try {
 
@@ -1322,7 +1453,7 @@ async function confirmNotionRegistration() {
 
 
     // ------------------------------------------------------------------------
-    // Notion 페이지 링크가 있으면 표시
+    // Notion 페이지 링크
     // ------------------------------------------------------------------------
 
     if (
@@ -1386,6 +1517,7 @@ async function confirmNotionRegistration() {
       error
     );
 
+
     result.innerHTML =
 
       '<div class="error">' +
@@ -1448,10 +1580,6 @@ function resetForNewRecording() {
     recordingTimer
   );
 
-  clearTimeout(
-    restartTimer
-  );
-
 
   if (
     recognition
@@ -1475,23 +1603,30 @@ function resetForNewRecording() {
   isRecording =
     false;
 
+
   finishRequested =
     true;
+
 
   recognitionRunning =
     false;
 
+
   finalTranscript =
     "";
+
 
   interimTranscript =
     "";
 
+
   displayedTranscript =
     "";
 
+
   pendingToken =
     null;
+
 
   isSending =
     false;
@@ -1500,8 +1635,10 @@ function resetForNewRecording() {
   startButton.disabled =
     false;
 
+
   finishButton.disabled =
     true;
+
 
   timer.textContent =
     "";
@@ -1565,3 +1702,4 @@ function escapeAttribute(
 
 </body>
 </html>
+```
