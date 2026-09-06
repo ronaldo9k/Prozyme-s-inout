@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -20,6 +19,7 @@
     body {
       margin: 0;
       padding: 20px;
+
       font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -47,6 +47,7 @@
       border-radius: 20px;
       padding: 20px;
       margin-bottom: 18px;
+
       box-shadow:
         0 4px 15px rgba(0,0,0,0.08);
     }
@@ -55,10 +56,14 @@
       width: 100%;
       border: none;
       border-radius: 15px;
+
       padding: 18px;
+
       font-size: 20px;
       font-weight: 700;
+
       cursor: pointer;
+
       margin-top: 10px;
     }
 
@@ -88,7 +93,6 @@
     }
 
     #result {
-      white-space: pre-wrap;
       line-height: 1.7;
       font-size: 17px;
     }
@@ -114,28 +118,73 @@
       margin-bottom: 18px;
     }
 
-    .preview-row {
-      padding: 13px 0;
-      border-bottom: 1px solid #eee;
+    /* ============================================================
+       수정 가능한 입력칸
+       ============================================================ */
+
+    .edit-row {
+      margin-bottom: 16px;
     }
 
-    .preview-label {
-      color: #777;
+    .edit-label {
+      display: block;
+
+      color: #555;
+
       font-size: 14px;
-      margin-bottom: 4px;
+      font-weight: 700;
+
+      margin-bottom: 7px;
     }
 
-    .preview-value {
-      font-size: 19px;
-      font-weight: 700;
+    .edit-input,
+    .edit-select {
+      width: 100%;
+
+      padding: 14px;
+
+      border:
+        1px solid #d9dce1;
+
+      border-radius: 12px;
+
+      background: white;
+
+      font-size: 17px;
+
+      outline: none;
+    }
+
+    .edit-input:focus,
+    .edit-select:focus {
+      border-color: #188038;
+    }
+
+    .size-display {
+      background: #f5f6f8;
+      color: #555;
+      cursor: not-allowed;
+    }
+
+    .help-text {
+      margin-top: 5px;
+
+      font-size: 13px;
+      color: #777;
     }
 
     .original-text {
       background: #f5f6f8;
+
       padding: 15px;
+
       border-radius: 12px;
-      margin-top: 15px;
+
+      margin-top: 18px;
+
       font-size: 16px;
+
+      line-height: 1.6;
     }
 
     .button-group {
@@ -144,13 +193,27 @@
 
     .timer {
       text-align: center;
+
       font-size: 15px;
+
       color: #777;
+
       margin-top: 10px;
+    }
+
+    .loading {
+      text-align: center;
+
+      padding: 10px 0;
+
+      color: #555;
+
+      font-weight: 700;
     }
 
   </style>
 </head>
+
 
 <body>
 
@@ -160,6 +223,7 @@
     🎙️ 푸로찜 에스<br>
     음성 입출고 시스템
   </h1>
+
 
   <!-- ============================================================
        음성 입력 카드
@@ -173,6 +237,7 @@
       🗣️ 말하기 시작
     </button>
 
+
     <button
       id="finishButton"
       disabled
@@ -180,12 +245,14 @@
       🛑 말하기 완료
     </button>
 
+
     <div
       id="timer"
       class="timer"
     ></div>
 
   </div>
+
 
   <!-- ============================================================
        결과 카드
@@ -213,11 +280,11 @@
 // ============================================================================
 
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbwKRdys79aMAzmHvL4DLz8qCZtgxl_gVhHPzje75Nyvdgoj0a9FvXBoAgmHykurjg/exec";
+  "https://script.google.com/macros/s/AKfycbx1m2_-cY_CGg-X5F_Jd9zE8JqKEwPw0-X6DdIsqXe0Ni-_hH777pZ7zbnUxfpiXaew/exec";
 
 
 // ============================================================================
-// ⭐ 2. 음성인식 기본 설정
+// ⭐ 2. 음성인식
 // ============================================================================
 
 const SpeechRecognition =
@@ -262,6 +329,13 @@ let isSending = false;
 // ⭐ 확인 대기 토큰
 
 let pendingToken = null;
+
+
+// ⭐ GAS에서 받아온 거래처 / 제품 목록
+
+let clientList = [];
+
+let productList = [];
 
 
 // ============================================================================
@@ -314,15 +388,17 @@ function appendWithoutDuplicate(
   addition =
     cleanText(addition);
 
+
   if (!addition) {
     return current;
   }
+
 
   if (!current) {
     return addition;
   }
 
-  // 완전히 같은 경우
+
   if (
     current === addition
   ) {
@@ -331,7 +407,7 @@ function appendWithoutDuplicate(
 
   }
 
-  // 현재 문장이 이미 추가 문장을 포함하는 경우
+
   if (
     current.includes(addition)
   ) {
@@ -340,7 +416,7 @@ function appendWithoutDuplicate(
 
   }
 
-  // 추가 문장이 현재 문장을 포함하는 경우
+
   if (
     addition.includes(current)
   ) {
@@ -348,6 +424,7 @@ function appendWithoutDuplicate(
     return addition;
 
   }
+
 
   return (
     current +
@@ -359,7 +436,7 @@ function appendWithoutDuplicate(
 
 
 // ============================================================================
-// 👀 7. 현재 음성 화면 표시
+// 👀 7. 현재 음성 화면
 // ============================================================================
 
 function showCurrentText() {
@@ -369,10 +446,12 @@ function showCurrentText() {
       finalTranscript
     );
 
+
   const interimText =
     cleanText(
       interimTranscript
     );
+
 
   displayedTranscript =
     cleanText(
@@ -384,11 +463,13 @@ function showCurrentText() {
       )
     );
 
+
   result.innerHTML =
     '<div class="listening">' +
     '🎙️ 듣고 있어요...<br><br>' +
     '</div>' +
-    (
+
+    escapeHtml(
       displayedTranscript ||
       "말씀해주세요."
     );
@@ -400,25 +481,16 @@ function showCurrentText() {
 // 🎙️ 8. 음성인식 시작
 // ============================================================================
 //
-// ⭐⭐⭐ 중요
+// ⭐ 자동 재시작하지 않습니다.
 //
-// 예전 코드에는 음성인식이 끝나면
+// 브라우저가 음성인식을 종료해도
+// 자동으로 recognition.start()를 다시 호출하지 않습니다.
 //
-//   0.3초 기다림
-//       ↓
-//   다시 start()
-//       ↓
-//   다시 종료
-//       ↓
-//   다시 start()
+// 이것이 휴대폰에서 마이크 권한 팝업이 반복되는 문제를
+// 막는 핵심입니다.
 //
-// 하는 자동 재시작 구조가 있었습니다.
-//
-// 휴대폰에서 이것이 마이크 권한 팝업을 반복시키거나
-// 음성 입력을 방해할 수 있으므로 이번 버전에서는 제거했습니다.
-//
-// 한 번 시작한 음성인식은 사용자가
-// "말하기 완료"를 누를 때까지 유지하도록 합니다.
+// 대신 사용자가 "이어가서 말하기" 버튼을 누르면
+// 같은 문장에 이어서 음성을 받을 수 있습니다.
 // ============================================================================
 
 function startRecognition() {
@@ -427,13 +499,16 @@ function startRecognition() {
     return;
   }
 
+
   if (!recognition) {
     return;
   }
 
+
   if (recognitionRunning) {
     return;
   }
+
 
   try {
 
@@ -452,7 +527,7 @@ function startRecognition() {
 
 
 // ============================================================================
-// 🟢 9. 말하기 시작
+// 🟢 9. 말하기 시작 / 이어서 말하기
 // ============================================================================
 
 startButton.addEventListener(
@@ -463,31 +538,88 @@ startButton.addEventListener(
       return;
     }
 
+
     if (!SpeechRecognition) {
       return;
     }
 
 
-    // ------------------------------------------------------------------------
-    // 이전 상태 초기화
-    // ------------------------------------------------------------------------
+    // ========================================================================
+    // ⭐ 이미 녹음 중인데 브라우저가 음성인식만 종료한 경우
+    //
+    // 기존 내용을 지우지 않고 이어서 듣습니다.
+    // ========================================================================
 
-    pendingToken = null;
+    if (isRecording) {
 
-    finalTranscript = "";
-
-    interimTranscript = "";
-
-    displayedTranscript = "";
-
-    finishRequested = false;
-
-    isRecording = true;
+      finishRequested =
+        false;
 
 
-    startButton.disabled = true;
+      startButton.disabled =
+        true;
 
-    finishButton.disabled = false;
+
+      finishButton.disabled =
+        false;
+
+
+      result.innerHTML =
+        '<div class="listening">' +
+        '🎙️ 다시 듣고 있어요...<br><br>' +
+        '</div>' +
+
+        (
+          displayedTranscript
+            ? escapeHtml(
+                displayedTranscript
+              )
+            : '말씀해주세요.'
+        );
+
+
+      startRecognition();
+
+
+      return;
+
+    }
+
+
+    // ========================================================================
+    // ⭐ 완전히 새로운 녹음 시작
+    // ========================================================================
+
+    pendingToken =
+      null;
+
+
+    finalTranscript =
+      "";
+
+    interimTranscript =
+      "";
+
+    displayedTranscript =
+      "";
+
+    finishRequested =
+      false;
+
+    isRecording =
+      true;
+
+
+    startButton.disabled =
+      true;
+
+
+    finishButton.disabled =
+      false;
+
+
+    startButton.textContent =
+      "🎤 듣는 중";
 
 
     timer.textContent =
@@ -596,22 +728,18 @@ startButton.addEventListener(
     // 🛑 음성인식 종료
     // ------------------------------------------------------------------------
     //
-    // ⭐⭐⭐ 가장 중요한 변경 부분
+    // ⭐⭐⭐⭐⭐
     //
-    // 예전:
+    // 여기서 자동 재시작하지 않습니다.
     //
-    // onend → 0.3초 후 start()
+    // 그리고 문제였던
     //
-    // 이번:
+    // "음성인식이 잠시 멈췄어요.
+    //  말씀을 이어가시려면 다시 말하기를 눌러주세요."
     //
-    // onend → 자동 재시작하지 않음
+    // 문구도 완전히 삭제했습니다.
     //
-    // 사용자가 "말하기 완료"를 누른 경우에는 정상 종료입니다.
-    //
-    // 만약 브라우저 자체가 음성 서비스를 중간에 종료시키면
-    // 화면에 상태를 알려줍니다.
-    //
-    // 이렇게 해야 계속 start()/stop()을 반복하지 않습니다.
+    // 브라우저가 인식을 끝내면 조용히 버튼 상태만 바꿉니다.
     // ------------------------------------------------------------------------
 
     recognition.onend =
@@ -626,20 +754,34 @@ startButton.addEventListener(
           !finishRequested
         ) {
 
-          result.innerHTML =
-            '<div class="listening">' +
-            '🎙️ 음성인식이 잠시 멈췄어요.<br><br>' +
-            '말씀을 이어가시려면 다시 말하기를 눌러주세요.' +
-            '</div>' +
+          // --------------------------------------------------------------
+          // 음성 내용은 그대로 유지
+          // --------------------------------------------------------------
 
-            (
-              displayedTranscript
-                ? '<br>' +
-                  escapeHtml(
-                    displayedTranscript
-                  )
-                : ""
-            );
+          startButton.disabled =
+            false;
+
+
+          startButton.textContent =
+            "🎤 이어서 말하기";
+
+
+          finishButton.disabled =
+            false;
+
+
+          // --------------------------------------------------------------
+          // ⭐ 별도의 오류 문구를 띄우지 않습니다.
+          // --------------------------------------------------------------
+
+          if (displayedTranscript) {
+
+            result.innerHTML =
+              escapeHtml(
+                displayedTranscript
+              );
+
+          }
 
         }
 
@@ -687,6 +829,10 @@ startButton.addEventListener(
             false;
 
 
+          startButton.textContent =
+            "🗣️ 말하기 시작";
+
+
           finishButton.disabled =
             true;
 
@@ -696,21 +842,26 @@ startButton.addEventListener(
         }
 
 
+        // --------------------------------------------------------------------
+        // no-speech
+        //
+        // 아무 메시지도 띄우지 않습니다.
+        // 자동 재시작도 하지 않습니다.
+        // --------------------------------------------------------------------
+
         if (
           event.error ===
           "no-speech"
         ) {
 
-          // no-speech는 브라우저가
-          // 음성을 못 들었다는 뜻입니다.
-          //
-          // 여기서 자동 재시작하지 않습니다.
-          // 그래야 마이크 시작/종료가 반복되지 않습니다.
-
           return;
 
         }
 
+
+        // --------------------------------------------------------------------
+        // aborted
+        // --------------------------------------------------------------------
 
         if (
           event.error ===
@@ -725,7 +876,7 @@ startButton.addEventListener(
 
 
     // ------------------------------------------------------------------------
-    // 🟢 음성인식 실제 시작
+    // 🟢 실제 시작
     // ------------------------------------------------------------------------
 
     recognition.onstart =
@@ -823,8 +974,16 @@ function finishRecording() {
   }
 
 
+  recognitionRunning =
+    false;
+
+
   startButton.disabled =
     false;
+
+
+  startButton.textContent =
+    "🗣️ 말하기 시작";
 
 
   finishButton.disabled =
@@ -871,24 +1030,19 @@ function finishRecording() {
 // 📡 12. 분석 요청
 // ============================================================================
 //
-// ⭐⭐⭐ 여기서는 Notion 등록을 하지 않습니다.
-//
-// action = analyze
-//
-// GAS는:
+// ⭐ 이 단계에서는 절대로 Notion 페이지를 만들지 않습니다.
 //
 // 음성
-//   ↓
+// ↓
+// Google Sheet 원문 저장
+// ↓
 // 분석
-//   ↓
-// Google Sheet 저장
-//   ↓
+// ↓
 // 미리보기
 //
-// 여기까지만 합니다.
+// 여기서 끝.
 //
-// 사용자가 "맞아요. 노션에 등록"을 눌러야
-// 비로소 confirm 요청이 갑니다.
+// 사용자가 최종 등록 버튼을 눌러야 confirm으로 갑니다.
 // ============================================================================
 
 function finalizeAndSend(
@@ -919,7 +1073,74 @@ function finalizeAndSend(
 
 
 // ============================================================================
-// 📡 13. GAS 분석 요청
+// 📡 13. GAS POST 공통
+// ============================================================================
+
+async function postToGAS(
+  payload
+) {
+
+  const response =
+    await fetch(
+      GAS_URL,
+      {
+
+        method:
+          "POST",
+
+        headers: {
+
+          "Content-Type":
+            "text/plain;charset=utf-8"
+
+        },
+
+        body:
+          JSON.stringify(
+            payload
+          )
+
+      }
+    );
+
+
+  const raw =
+    await response.text();
+
+
+  console.log(
+    "GAS 응답:",
+    raw
+  );
+
+
+  let data;
+
+
+  try {
+
+    data =
+      JSON.parse(
+        raw
+      );
+
+  } catch (jsonError) {
+
+    throw new Error(
+      "GAS 응답을 읽지 못했습니다.\n\n" +
+      raw
+    );
+
+  }
+
+
+  return data;
+
+}
+
+
+// ============================================================================
+// 📡 14. GAS 분석 요청
 // ============================================================================
 
 async function sendAnalyzeToGAS(
@@ -928,64 +1149,16 @@ async function sendAnalyzeToGAS(
 
   try {
 
-    const response =
-      await fetch(
-        GAS_URL,
-        {
+    const data =
+      await postToGAS({
 
-          method:
-            "POST",
+        action:
+          "analyze",
 
-          headers: {
+        text:
+          text
 
-            "Content-Type":
-              "text/plain;charset=utf-8"
-
-          },
-
-          body:
-            JSON.stringify({
-
-              action:
-                "analyze",
-
-              text:
-                text
-
-            })
-
-        }
-      );
-
-
-    const raw =
-      await response.text();
-
-
-    console.log(
-      "GAS 분석 응답:",
-      raw
-    );
-
-
-    let data;
-
-
-    try {
-
-      data =
-        JSON.parse(
-          raw
-        );
-
-    } catch (jsonError) {
-
-      throw new Error(
-        "GAS 응답을 읽지 못했습니다.\n\n" +
-        raw
-      );
-
-    }
+      });
 
 
     // ------------------------------------------------------------------------
@@ -1006,7 +1179,7 @@ async function sendAnalyzeToGAS(
 
 
     // ------------------------------------------------------------------------
-    // ⭐ 확인 토큰 저장
+    // ⭐ 확인 토큰
     // ------------------------------------------------------------------------
 
     pendingToken =
@@ -1077,114 +1250,363 @@ async function sendAnalyzeToGAS(
 
 
 // ============================================================================
-// 👀 14. 미리보기 화면
+// 📋 15. 초기 거래처 / 제품 목록 가져오기
+// ============================================================================
+//
+// GitHub 페이지는 GAS와 다른 사이트이므로
+// 페이지가 열릴 때 GAS에 거래처 / 제품 목록을 요청합니다.
+//
+// 이 목록을 미리보기의 드롭다운에 사용합니다.
+// ============================================================================
+
+async function loadInitialData() {
+
+  try {
+
+    const data =
+      await postToGAS({
+
+        action:
+          "initialData"
+
+      });
+
+
+    if (
+      data.status !==
+      "success"
+    ) {
+
+      throw new Error(
+        data.message ||
+        "거래처 / 제품 목록을 가져오지 못했습니다."
+      );
+
+    }
+
+
+    clientList =
+      Array.isArray(data.clients)
+        ? data.clients
+        : [];
+
+
+    productList =
+      Array.isArray(data.products)
+        ? data.products
+        : [];
+
+
+    console.log(
+      "거래처 수:",
+      clientList.length
+    );
+
+
+    console.log(
+      "제품 수:",
+      productList.length
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "초기 데이터 오류:",
+      error
+    );
+
+
+    result.innerHTML =
+      '<div class="error">' +
+      '❌ 거래처 / 제품 목록을 가져오지 못했습니다.<br><br>' +
+      escapeHtml(
+        error.message ||
+        String(error)
+      ) +
+      '</div>';
+
+  }
+
+}
+
+
+// ============================================================================
+// 👀 16. 미리보기 화면
+// ============================================================================
+//
+// ⭐⭐⭐⭐⭐
+//
+// 이제 단순히 보여주기만 하는 것이 아니라
+// 사용자가 직접 수정할 수 있습니다.
+//
+// 거래처 → select
+// 제품 → select
+// 수량 → number
+// 입출고 → select
+// 납품요청일 → date
 // ============================================================================
 
 function showPreview(
   data
 ) {
 
+  // --------------------------------------------------------------------------
+  // 거래처 옵션
+  // --------------------------------------------------------------------------
+
+  let clientOptions =
+    "";
+
+
+  clientList.forEach(
+    function(client) {
+
+      const selected =
+        String(client.id) ===
+        String(data.clientPageId)
+          ? " selected"
+          : "";
+
+
+      clientOptions +=
+        '<option value="' +
+        escapeAttribute(
+          client.id
+        ) +
+        '"' +
+        selected +
+        '>' +
+
+        escapeHtml(
+          client.name
+        ) +
+
+        '</option>';
+
+    }
+  );
+
+
+  // --------------------------------------------------------------------------
+  // 제품 옵션
+  // --------------------------------------------------------------------------
+
+  let productOptions =
+    "";
+
+
+  productList.forEach(
+    function(product) {
+
+      const selected =
+        String(product.id) ===
+        String(data.productPageId)
+          ? " selected"
+          : "";
+
+
+      productOptions +=
+        '<option value="' +
+        escapeAttribute(
+          product.id
+        ) +
+        '"' +
+        selected +
+        '>' +
+
+        escapeHtml(
+          product.name
+        ) +
+
+        '</option>';
+
+    }
+  );
+
+
+  // --------------------------------------------------------------------------
+  // HTML
+  // --------------------------------------------------------------------------
+
   const html =
 
     '<div class="preview-title">' +
-    '🔎 아래 내용이 맞나요?' +
+    '📝 등록 내용을 확인해주세요' +
     '</div>' +
 
 
-    '<div class="preview-row">' +
+    // ========================================================================
+    // 거래처
+    // ========================================================================
 
-    '<div class="preview-label">' +
+    '<div class="edit-row">' +
+
+    '<label class="edit-label">' +
     '🏢 거래처' +
+    '</label>' +
+
+    '<select ' +
+    'id="clientSelect" ' +
+    'class="edit-select"' +
+    '>' +
+
+    clientOptions +
+
+    '</select>' +
+
     '</div>' +
 
-    '<div class="preview-value">' +
-    escapeHtml(
-      data.clientName
-    ) +
-    '</div>' +
 
-    '</div>' +
+    // ========================================================================
+    // 제품
+    // ========================================================================
 
+    '<div class="edit-row">' +
 
-    '<div class="preview-row">' +
-
-    '<div class="preview-label">' +
+    '<label class="edit-label">' +
     '🏭 제품' +
+    '</label>' +
+
+    '<select ' +
+    'id="productSelect" ' +
+    'class="edit-select"' +
+    '>' +
+
+    productOptions +
+
+    '</select>' +
+
     '</div>' +
 
-    '<div class="preview-value">' +
-    escapeHtml(
-      data.productName
-    ) +
-    '</div>' +
 
-    '</div>' +
+    // ========================================================================
+    // 규격
+    // ========================================================================
 
+    '<div class="edit-row">' +
 
-    '<div class="preview-row">' +
-
-    '<div class="preview-label">' +
+    '<label class="edit-label">' +
     '📏 규격' +
-    '</div>' +
+    '</label>' +
 
-    '<div class="preview-value">' +
-    escapeHtml(
+    '<input ' +
+    'id="sizeInput" ' +
+    'class="edit-input size-display"' +
+    'value="' +
+    escapeAttribute(
       data.size
     ) +
+    '" ' +
+    'readonly' +
+    '>' +
+
+    '<div class="help-text">' +
+    '제품을 바꾸면 규격도 자동으로 바뀝니다.' +
     '</div>' +
 
     '</div>' +
 
 
-    '<div class="preview-row">' +
+    // ========================================================================
+    // 수량
+    // ========================================================================
 
-    '<div class="preview-label">' +
+    '<div class="edit-row">' +
+
+    '<label class="edit-label">' +
     '📦 수량' +
-    '</div>' +
+    '</label>' +
 
-    '<div class="preview-value">' +
-    escapeHtml(
-      String(data.quantity) +
-      "박스"
+    '<input ' +
+    'id="quantityInput" ' +
+    'class="edit-input"' +
+    'type="number" ' +
+    'min="1" ' +
+    'step="1" ' +
+    'value="' +
+    escapeAttribute(
+      data.quantity
     ) +
+    '"' +
+    '>' +
+
+    '<div class="help-text">' +
+    '박스 수량을 숫자로 수정하세요.' +
     '</div>' +
 
     '</div>' +
 
 
-    '<div class="preview-row">' +
+    // ========================================================================
+    // 입출고
+    // ========================================================================
 
-    '<div class="preview-label">' +
-    '📤 구분' +
-    '</div>' +
+    '<div class="edit-row">' +
 
-    '<div class="preview-value">' +
-    escapeHtml(
-      data.mode
+    '<label class="edit-label">' +
+    '📤 입출고' +
+    '</label>' +
+
+    '<select ' +
+    'id="modeSelect" ' +
+    'class="edit-select"' +
+    '>' +
+
+    '<option value="출고"' +
+    (
+      data.mode === "출고"
+        ? " selected"
+        : ""
     ) +
-    '</div>' +
+    '>출고</option>' +
+
+    '<option value="입고"' +
+    (
+      data.mode === "입고"
+        ? " selected"
+        : ""
+    ) +
+    '>입고</option>' +
+
+    '</select>' +
 
     '</div>' +
 
 
-    '<div class="preview-row">' +
+    // ========================================================================
+    // 납품요청일
+    // ========================================================================
 
-    '<div class="preview-label">' +
+    '<div class="edit-row">' +
+
+    '<label class="edit-label">' +
     '📅 납품요청일' +
-    '</div>' +
+    '</label>' +
 
-    '<div class="preview-value">' +
-    escapeHtml(
+    '<input ' +
+    'id="deliveryDateInput" ' +
+    'class="edit-input"' +
+    'type="date" ' +
+    'value="' +
+    escapeAttribute(
       data.deliveryDate
     ) +
-    '</div>' +
+    '"' +
+    '>' +
 
     '</div>' +
 
+
+    // ========================================================================
+    // 원문
+    // ========================================================================
 
     '<div class="original-text">' +
 
-    '<strong>🗣 내가 말한 원문</strong><br><br>' +
+    '<strong>🗣 내가 말한 원문</strong>' +
+
+    '<br><br>' +
 
     escapeHtml(
       data.text
@@ -1193,19 +1615,28 @@ function showPreview(
     '</div>' +
 
 
+    // ========================================================================
+    // 버튼
+    // ========================================================================
+
     '<div class="button-group">' +
 
     '<button ' +
     'id="confirmButton"' +
     '>' +
-    '✅ 맞아요. 노션에 등록' +
+
+    '✅ 수정된 내용으로 Notion 등록' +
+
     '</button>' +
+
 
     '<button ' +
     'id="retryButton"' +
     'style="background:#666;color:white;"' +
     '>' +
+
     '❌ 다시 말하기' +
+
     '</button>' +
 
     '</div>';
@@ -1216,7 +1647,66 @@ function showPreview(
 
 
   // --------------------------------------------------------------------------
-  // 확인 버튼
+  // ⭐ 제품 변경 → 규격 자동 변경
+  // --------------------------------------------------------------------------
+
+  const productSelect =
+    document.getElementById(
+      "productSelect"
+    );
+
+
+  const sizeInput =
+    document.getElementById(
+      "sizeInput"
+    );
+
+
+  if (productSelect) {
+
+    productSelect.addEventListener(
+      "change",
+      function() {
+
+        const selectedProduct =
+          productList.find(
+            function(product) {
+
+              return String(product.id) ===
+                String(
+                  productSelect.value
+                );
+
+            }
+          );
+
+
+        if (!selectedProduct) {
+          return;
+        }
+
+
+        const size =
+          getProductSize(
+            selectedProduct.name
+          );
+
+
+        if (size) {
+
+          sizeInput.value =
+            size;
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // --------------------------------------------------------------------------
+  // ⭐ 확인 버튼
   // --------------------------------------------------------------------------
 
   document
@@ -1234,7 +1724,7 @@ function showPreview(
 
 
   // --------------------------------------------------------------------------
-  // 다시 말하기 버튼
+  // ⭐ 다시 말하기
   // --------------------------------------------------------------------------
 
   document
@@ -1254,7 +1744,69 @@ function showPreview(
 
 
 // ============================================================================
-// 🔐 15. 사용자가 확인 → Notion 등록
+// 📏 17. 제품명에서 규격 찾기
+// ============================================================================
+//
+// 현재 제품은 딱 3개.
+//
+// 푸로찜 12 KG
+// 푸로찜 15 KG
+// 푸로찜 20 KG
+//
+// 제품명을 보고 규격을 자동으로 표시합니다.
+// ============================================================================
+
+function getProductSize(
+  productName
+) {
+
+  const text =
+    String(
+      productName || ""
+    );
+
+
+  if (
+    /12\s*KG/i.test(text)
+  ) {
+
+    return "12 KG";
+
+  }
+
+
+  if (
+    /15\s*KG/i.test(text)
+  ) {
+
+    return "15 KG";
+
+  }
+
+
+  if (
+    /20\s*KG/i.test(text)
+  ) {
+
+    return "20 KG";
+
+  }
+
+
+  return "";
+
+}
+
+
+// ============================================================================
+// 🔐 18. 사용자가 최종 확인 → Notion 등록
+// ============================================================================
+//
+// ⭐⭐⭐⭐⭐
+//
+// 화면에서 수정한 값을 모두 읽어서 GAS로 보냅니다.
+//
+// 서버에서는 다시 실제 Notion DB의 거래처 / 제품을 확인합니다.
 // ============================================================================
 
 async function confirmNotionRegistration() {
@@ -1269,6 +1821,7 @@ async function confirmNotionRegistration() {
       '다시 말씀해주세요.' +
       '</div>';
 
+
     return;
 
   }
@@ -1278,6 +1831,185 @@ async function confirmNotionRegistration() {
     return;
   }
 
+
+  // --------------------------------------------------------------------------
+  // 화면에서 수정한 값 읽기
+  // --------------------------------------------------------------------------
+
+  const clientSelect =
+    document.getElementById(
+      "clientSelect"
+    );
+
+
+  const productSelect =
+    document.getElementById(
+      "productSelect"
+    );
+
+
+  const quantityInput =
+    document.getElementById(
+      "quantityInput"
+    );
+
+
+  const modeSelect =
+    document.getElementById(
+      "modeSelect"
+    );
+
+
+  const deliveryDateInput =
+    document.getElementById(
+      "deliveryDateInput"
+    );
+
+
+  const sizeInput =
+    document.getElementById(
+      "sizeInput"
+    );
+
+
+  if (
+    !clientSelect ||
+    !productSelect ||
+    !quantityInput ||
+    !modeSelect ||
+    !deliveryDateInput ||
+    !sizeInput
+  ) {
+
+    result.innerHTML =
+      '<div class="error">' +
+      '❌ 등록 화면을 읽지 못했습니다.<br><br>' +
+      '다시 말씀해주세요.' +
+      '</div>';
+
+
+    return;
+
+  }
+
+
+  const clientPageId =
+    clientSelect.value;
+
+
+  const productPageId =
+    productSelect.value;
+
+
+  const quantity =
+    Number(
+      quantityInput.value
+    );
+
+
+  const mode =
+    modeSelect.value;
+
+
+  const deliveryDate =
+    deliveryDateInput.value;
+
+
+  const size =
+    sizeInput.value;
+
+
+  // --------------------------------------------------------------------------
+  // 기본 검사
+  // --------------------------------------------------------------------------
+
+  if (!clientPageId) {
+
+    alert(
+      "거래처를 선택해주세요."
+    );
+
+    return;
+
+  }
+
+
+  if (!productPageId) {
+
+    alert(
+      "제품을 선택해주세요."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !Number.isInteger(quantity) ||
+    quantity <= 0
+  ) {
+
+    alert(
+      "수량은 1박스 이상의 정수로 입력해주세요."
+    );
+
+    quantityInput.focus();
+
+    return;
+
+  }
+
+
+  if (
+    mode !== "입고" &&
+    mode !== "출고"
+  ) {
+
+    alert(
+      "입고 또는 출고를 선택해주세요."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      deliveryDate
+    )
+  ) {
+
+    alert(
+      "납품요청일을 선택해주세요."
+    );
+
+    deliveryDateInput.focus();
+
+    return;
+
+  }
+
+
+  if (
+    size !== "12 KG" &&
+    size !== "15 KG" &&
+    size !== "20 KG"
+  ) {
+
+    alert(
+      "제품 규격을 확인해주세요."
+    );
+
+    return;
+
+  }
+
+
+  // --------------------------------------------------------------------------
+  // 전송 중
+  // --------------------------------------------------------------------------
 
   isSending =
     true;
@@ -1323,64 +2055,38 @@ async function confirmNotionRegistration() {
 
   try {
 
-    const response =
-      await fetch(
-        GAS_URL,
-        {
+    // ------------------------------------------------------------------------
+    // ⭐ 수정된 최종값을 GAS로 전송
+    // ------------------------------------------------------------------------
 
-          method:
-            "POST",
+    const data =
+      await postToGAS({
 
-          headers: {
+        action:
+          "confirm",
 
-            "Content-Type":
-              "text/plain;charset=utf-8"
+        token:
+          pendingToken,
 
-          },
+        clientPageId:
+          clientPageId,
 
-          body:
-            JSON.stringify({
+        productPageId:
+          productPageId,
 
-              action:
-                "confirm",
+        quantity:
+          quantity,
 
-              token:
-                pendingToken
+        mode:
+          mode,
 
-            })
+        size:
+          size,
 
-        }
-      );
+        deliveryDate:
+          deliveryDate
 
-
-    const raw =
-      await response.text();
-
-
-    console.log(
-      "GAS 등록 응답:",
-      raw
-    );
-
-
-    let data;
-
-
-    try {
-
-      data =
-        JSON.parse(
-          raw
-        );
-
-    } catch (jsonError) {
-
-      throw new Error(
-        "GAS 등록 응답을 읽지 못했습니다.\n\n" +
-        raw
-      );
-
-    }
+      });
 
 
     // ------------------------------------------------------------------------
@@ -1401,7 +2107,7 @@ async function confirmNotionRegistration() {
 
 
     // ------------------------------------------------------------------------
-    // 🎉 등록 성공
+    // 🎉 성공
     // ------------------------------------------------------------------------
 
     pendingToken =
@@ -1419,9 +2125,11 @@ async function confirmNotionRegistration() {
       '<br>' +
 
       '<strong>' +
+
       escapeHtml(
         data.clientName
       ) +
+
       '</strong>' +
 
       ' / ' +
@@ -1433,7 +2141,9 @@ async function confirmNotionRegistration() {
       ' / ' +
 
       escapeHtml(
-        String(data.quantity) +
+        String(
+          data.quantity
+        ) +
         "박스"
       ) +
 
@@ -1444,6 +2154,14 @@ async function confirmNotionRegistration() {
       ) +
 
       '<br><br>' +
+
+      '📏 규격: ' +
+
+      escapeHtml(
+        data.size
+      ) +
+
+      '<br>' +
 
       '📅 납품요청일: ' +
 
@@ -1480,6 +2198,10 @@ async function confirmNotionRegistration() {
 
     }
 
+
+    // ------------------------------------------------------------------------
+    // 새 입력 버튼
+    // ------------------------------------------------------------------------
 
     result.innerHTML +=
 
@@ -1571,7 +2293,7 @@ async function confirmNotionRegistration() {
 
 
 // ============================================================================
-// 🔄 16. 새 음성 입력 준비
+// 🔄 19. 새 음성 입력 준비
 // ============================================================================
 
 function resetForNewRecording() {
@@ -1615,10 +2337,8 @@ function resetForNewRecording() {
   finalTranscript =
     "";
 
-
   interimTranscript =
     "";
-
 
   displayedTranscript =
     "";
@@ -1636,6 +2356,10 @@ function resetForNewRecording() {
     false;
 
 
+  startButton.textContent =
+    "🗣️ 말하기 시작";
+
+
   finishButton.disabled =
     true;
 
@@ -1651,7 +2375,7 @@ function resetForNewRecording() {
 
 
 // ============================================================================
-// 🛡️ 17. HTML 안전 처리
+// 🛡️ 20. HTML 안전 처리
 // ============================================================================
 
 function escapeHtml(
@@ -1663,22 +2387,27 @@ function escapeHtml(
       ? ""
       : value
   )
+
     .replace(
       /&/g,
       "&amp;"
     )
+
     .replace(
       /</g,
       "&lt;"
     )
+
     .replace(
       />/g,
       "&gt;"
     )
+
     .replace(
       /"/g,
       "&quot;"
     )
+
     .replace(
       /'/g,
       "&#039;"
@@ -1698,8 +2427,18 @@ function escapeAttribute(
 }
 
 
+// ============================================================================
+// ⭐ 21. 페이지 처음 열렸을 때 거래처 / 제품 목록 준비
+// ============================================================================
+//
+// GitHub 페이지가 열리면
+// GAS에서 실제 Notion DB 목록을 받아옵니다.
+// ============================================================================
+
+loadInitialData();
+
+
 </script>
 
 </body>
 </html>
-```
