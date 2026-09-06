@@ -1,62 +1,293 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>음성 인식 입력기</title>
+
+    <title>푸로찜 에스 음성 입출고</title>
+
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9; }
-        button { font-size: 24px; padding: 15px 30px; border-radius: 30px; border: none; background-color: #4CAF50; color: white; cursor: pointer; }
-        #result { margin-top: 30px; font-size: 18px; color: #333; }
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 40px 20px;
+            background: #f9f9f9;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            font-size: 24px;
+            padding: 18px 30px;
+            border-radius: 30px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #999;
+        }
+
+        #result {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #333;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
-    <h1>🎙️ 음성 입출고 시스템</h1>
+
+    <h1>🎙️ 푸로찜 에스<br>음성 입출고 시스템</h1>
+
     <button id="start-btn">🗣️ 말하기 시작</button>
-    <div id="result">여기에 음성 인식 결과가 표시됩니다.</div>
 
-    <script>
-        const startBtn = document.getElementById('start-btn');
-        const resultDiv = document.getElementById('result');
-        
-        // 구글 웹 앱 URL 주소를 넣어줍니다.
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyXlGjbrXRCww8W0k6ADQEswOxy9ZLdPDKhINmCd8vkmwtfWjzkQOjBoeR07MIWflZF/exec"; 
+    <div id="result">
+        버튼을 누르고 말씀하세요.
+    </div>
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        if (!SpeechRecognition) {
-            resultDiv.innerText = "이 브라우저는 음성 인식을 지원하지 않습니다. (크롬/사파리를 쓰세요)";
-        } else {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'ko-KR';
 
-            startBtn.addEventListener('click', () => {
+<script>
+
+    // =========================================================
+    // ⭐ 사장님의 GAS 웹 앱 주소
+    // =========================================================
+
+    const GAS_URL =
+        "https://script.google.com/macros/s/AKfycbyXlGjbrXRCww8W0k6ADQEswOxy9ZLdPDKhINmCd8vkmwtfWjzkQOjBoeR07MIWflZF/exec";
+
+
+    // =========================================================
+    // 화면 요소
+    // =========================================================
+
+    const startBtn = document.getElementById("start-btn");
+    const resultDiv = document.getElementById("result");
+
+
+    // =========================================================
+    // 휴대폰 음성인식 기능 확인
+    // =========================================================
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        resultDiv.innerText =
+            "❌ 이 브라우저는 음성 인식을 지원하지 않습니다.\n\n" +
+            "휴대폰에서는 Chrome을 사용해주세요.";
+
+    } else {
+
+        const recognition = new SpeechRecognition();
+
+        recognition.lang = "ko-KR";
+
+        recognition.continuous = false;
+
+        recognition.interimResults = true;
+
+
+        // =====================================================
+        // 🎤 말하기 버튼
+        // =====================================================
+
+        startBtn.addEventListener("click", () => {
+
+            try {
+
                 recognition.start();
-                resultDiv.innerText = "듣고 있어요... 말씀하세요!";
-            });
 
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                resultDiv.innerText = "인식된 말: " + text + "\n(시트에 저장 중...)";
+                startBtn.disabled = true;
 
-                // GAS로 데이터 전송
-                fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ text: text })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.status === "success") {
-                        resultDiv.innerText = "✅ 시트에 기록 완료!: " + text;
-                    } else {
-                        resultDiv.innerText = "❌ 저장 실패: " + data.message;
-                    }
-                })
-                .catch(err => {
-                    resultDiv.innerText = "✅ 전송 완료 (CORS 환경에 따라 에러로 보일 수 있으나 시트를 확인해 보세요!)";
-                });
-            };
-        }
-    </script>
+                startBtn.innerText = "🎧 듣고 있어요...";
+
+                resultDiv.className = "";
+
+                resultDiv.innerText =
+                    "말씀하세요...\n\n" +
+                    "예:\n" +
+                    "푸로찜 에스 3박스 출고\n" +
+                    "거래처 홍길동";
+
+
+            } catch (error) {
+
+                console.log(error);
+
+            }
+
+        });
+
+
+        // =====================================================
+        // 🎤 음성 인식 결과
+        // =====================================================
+
+        recognition.onresult = (event) => {
+
+            let text = "";
+
+            for (
+                let i = event.resultIndex;
+                i < event.results.length;
+                i++
+            ) {
+
+                text += event.results[i][0].transcript;
+
+            }
+
+
+            resultDiv.className = "";
+
+            resultDiv.innerText =
+                "🗣️ 인식된 내용\n\n" +
+                text;
+
+
+            // 최종 음성 결과가 나왔을 때만 전송
+            if (event.results[event.results.length - 1].isFinal) {
+
+                sendToGAS(text);
+
+            }
+
+        };
+
+
+        // =====================================================
+        // 🎤 음성인식 종료
+        // =====================================================
+
+        recognition.onend = () => {
+
+            startBtn.disabled = false;
+
+            startBtn.innerText = "🗣️ 다시 말하기";
+
+        };
+
+
+        // =====================================================
+        // ❌ 음성인식 오류
+        // =====================================================
+
+        recognition.onerror = (event) => {
+
+            startBtn.disabled = false;
+
+            startBtn.innerText = "🗣️ 다시 말하기";
+
+            resultDiv.className = "error";
+
+            resultDiv.innerText =
+                "❌ 음성 인식 오류\n\n" +
+                event.error;
+
+        };
+
+
+    }
+
+
+    // =========================================================
+    // ⭐ GAS로 음성내용 보내기
+    // =========================================================
+
+    function sendToGAS(text) {
+
+        resultDiv.className = "";
+
+        resultDiv.innerText =
+            "🗣️ 인식된 내용\n\n" +
+            text +
+            "\n\n📤 Google 시트로 보내는 중...";
+
+
+        /*
+         * 중요!
+         *
+         * application/json을 사용하면 브라우저가
+         * CORS 사전 요청(OPTIONS)을 발생시킬 수 있습니다.
+         *
+         * 그래서 text/plain 방식으로 보냅니다.
+         */
+
+        fetch(GAS_URL, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+
+            body: JSON.stringify({
+                text: text
+            })
+
+        })
+
+        .then(response => {
+
+            return response.text();
+
+        })
+
+        .then(data => {
+
+            console.log("GAS 응답:", data);
+
+            resultDiv.className = "success";
+
+            resultDiv.innerText =
+                "✅ 전송 성공!\n\n" +
+                "🗣️ " +
+                text +
+                "\n\n" +
+                "📊 Google 시트에 저장을 요청했습니다.";
+
+        })
+
+        .catch(error => {
+
+            console.error("GAS 전송 오류:", error);
+
+            /*
+             * 여기서는 무조건 '전송완료'라고 거짓말하지 않습니다.
+             */
+
+            resultDiv.className = "error";
+
+            resultDiv.innerText =
+                "⚠️ 전송 결과를 확인하지 못했습니다.\n\n" +
+                "잠시 후 Google 시트를 확인해주세요.";
+
+        });
+
+    }
+
+</script>
+
 </body>
 </html>
