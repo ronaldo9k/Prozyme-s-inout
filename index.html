@@ -2,1119 +2,4215 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <meta name="theme-color" content="#111827">
+
   <title>푸로찜 에스 음성 입출고 시스템</title>
 
+
   <style>
-    * { box-sizing: border-box; }
+
+    /* ========================================================================
+       ⭐ 기본
+       ======================================================================== */
+
+    * {
+      box-sizing: border-box;
+    }
+
 
     :root {
+
       --bg: #0b0f17;
+
       --card: rgba(255,255,255,.96);
+
       --text: #111827;
+
       --muted: #6b7280;
+
       --line: #e5e7eb;
+
       --green: #15803d;
+
       --red: #dc2626;
+
       --dark: #111827;
+
       --gold: #c9a227;
+
     }
+
 
     body {
+
       margin: 0;
+
       padding: 0 14px 30px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
       background:
-        radial-gradient(circle at 50% 0%, rgba(201,162,39,.20), transparent 34%),
-        linear-gradient(180deg, #111827 0 300px, #eef1f5 300px 100%);
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(201,162,39,.20),
+          transparent 34%
+        ),
+        linear-gradient(
+          180deg,
+          #111827 0 300px,
+          #eef1f5 300px 100%
+        );
+
       color: var(--text);
+
       min-height: 100vh;
+
     }
 
-    .container { max-width: 560px; margin: 0 auto; }
+
+    .container {
+
+      max-width: 560px;
+
+      margin: 0 auto;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 화면 단계
+       ======================================================================== */
+
+    .screen {
+
+      width: 100%;
+
+    }
+
+
+    /*
+     * STEP 1
+     *
+     * 최초 입력 화면
+     */
+
+    #inputScreen {
+
+      display: block;
+
+    }
+
+
+    /*
+     * STEP 2 / STEP 3
+     *
+     * 처음에는 숨겨놓습니다.
+     *
+     * 음성 분석이 끝나면
+     * STEP 1 전체를 숨기고
+     * 이 화면만 보여줍니다.
+     */
+
+    #resultCard {
+
+      display: block;
+
+    }
+
+
+    .step-hidden {
+
+      display: none !important;
+
+    }
+
+
+    .step-indicator {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 8px;
+
+      margin: 4px 0 15px;
+
+      font-size: 12px;
+
+      font-weight: 800;
+
+      color: #94a3b8;
+
+    }
+
+
+    .step-dot {
+
+      width: 26px;
+
+      height: 26px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      background: #e5e7eb;
+
+      color: #64748b;
+
+      font-size: 12px;
+
+      font-weight: 900;
+
+    }
+
+
+    .step-dot.active {
+
+      background: #111827;
+
+      color: white;
+
+    }
+
+
+    .step-line {
+
+      width: 35px;
+
+      height: 2px;
+
+      background: #e5e7eb;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ HERO
+       ======================================================================== */
 
     .hero {
+
       position: relative;
+
       margin: 0 -14px 18px;
+
       height: 310px;
+
       overflow: hidden;
+
       border-radius: 0 0 30px 30px;
+
       background: #111827;
-      box-shadow: 0 14px 35px rgba(0,0,0,.25);
+
+      box-shadow:
+        0 14px 35px rgba(0,0,0,.25);
+
     }
+
 
     .hero-image {
+
       position: absolute;
+
       inset: 0;
+
       width: 100%;
+
       height: 100%;
+
       object-fit: cover;
+
       object-position: center 28%;
+
       opacity: .82;
+
     }
+
 
     .hero-overlay {
+
       position: absolute;
+
       inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.78));
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(0,0,0,.10),
+          rgba(0,0,0,.78)
+        );
+
     }
+
 
     .hero-content {
+
       position: absolute;
+
       left: 22px;
+
       right: 22px;
+
       bottom: 22px;
+
       color: white;
-      text-shadow: 0 2px 8px rgba(0,0,0,.55);
+
+      text-shadow:
+        0 2px 8px rgba(0,0,0,.55);
+
     }
+
 
     .hero-kicker {
+
       font-size: 12px;
+
       letter-spacing: 2.4px;
+
       font-weight: 900;
+
       color: #f5d978;
+
       margin-bottom: 5px;
+
     }
+
 
     .hero-title {
+
       font-size: 29px;
+
       line-height: 1.18;
+
       font-weight: 900;
+
       margin: 0;
+
     }
+
 
     .hero-sub {
+
       margin-top: 8px;
+
       font-size: 14px;
+
       font-weight: 600;
+
       opacity: .92;
+
     }
+
+
+    /* ========================================================================
+       ⭐ CARD
+       ======================================================================== */
 
     .card {
+
       background: var(--card);
+
       border-radius: 22px;
+
       padding: 19px;
+
       margin-bottom: 16px;
-      box-shadow: 0 8px 24px rgba(15,23,42,.10);
+
+      box-shadow:
+        0 8px 24px rgba(15,23,42,.10);
+
       backdrop-filter: blur(8px);
+
     }
+
+
+    /* ========================================================================
+       ⭐ 버튼
+       ======================================================================== */
 
     button {
+
       width: 100%;
+
       border: none;
+
       border-radius: 15px;
+
       padding: 17px;
+
       font-size: 19px;
+
       font-weight: 800;
+
       cursor: pointer;
+
       margin-top: 9px;
-      transition: transform .12s ease, opacity .12s ease;
+
+      transition:
+        transform .12s ease,
+        opacity .12s ease;
+
     }
 
-    button:active { transform: scale(.985); }
-    button:disabled { opacity: .48; cursor: not-allowed; }
 
-    #startButton { background: var(--dark); color: white; }
-    #finishButton { background: var(--red); color: white; }
-    #directButton { background: linear-gradient(135deg,#b38a17,#e5c45b); color: #111827; }
-    #confirmButton { background: var(--green); color: white; }
-    #retryButton { background: #64748b; color: white; }
+    button:active {
 
-    #result { line-height: 1.7; font-size: 17px; }
-    .listening { color: var(--red); font-weight: 800; }
-    .success { color: var(--green); font-weight: 900; font-size: 19px; }
-    .error { color: var(--red); font-weight: 800; }
+      transform: scale(.985);
 
-    .preview-title { font-size: 22px; font-weight: 900; margin-bottom: 18px; }
-    .preview-badge {
-      display: inline-block;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: #f3f4f6;
-      color: #4b5563;
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 13px;
     }
 
-    .edit-row { margin-bottom: 16px; }
-    .edit-label { display: block; color: #4b5563; font-size: 14px; font-weight: 800; margin-bottom: 7px; }
-    .edit-input, .edit-select {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #d7dbe1;
-      border-radius: 12px;
-      background: white;
-      font-size: 17px;
-      outline: none;
-    }
-    .edit-input:focus, .edit-select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(21,128,61,.10); }
-    .size-display { background: #f3f4f6; color: #555; cursor: not-allowed; }
-    .help-text { margin-top: 5px; font-size: 12px; color: #777; }
-    .original-text { background: #f3f4f6; padding: 14px; border-radius: 12px; margin-top: 18px; font-size: 15px; line-height: 1.6; }
-    .button-group { margin-top: 19px; }
-    .timer { text-align: center; font-size: 14px; color: #6b7280; margin-top: 9px; }
-    .loading { text-align: center; padding: 10px 0; color: #555; font-weight: 700; }
 
-    /* ============================================================
-       🏢 거래처 검색 후보 UI
-       ============================================================ */
-    .client-search-wrap { position: relative; }
-    .client-search-input { padding-left: 43px; }
-    .search-icon { position: absolute; left: 14px; top: 13px; font-size: 20px; z-index: 2; }
-    .client-candidates {
-      margin-top: 7px;
-      border: 1px solid #e1e5ea;
-      border-radius: 12px;
-      overflow: hidden;
-      background: white;
-      max-height: 220px;
-      overflow-y: auto;
+    button:disabled {
+
+      opacity: .48;
+
+      cursor: not-allowed;
+
     }
-    .candidate-empty { padding: 13px; color: #777; font-size: 14px; }
-    .candidate-item {
-      width: 100%;
-      text-align: left;
-      border: 0;
-      border-bottom: 1px solid #edf0f3;
-      border-radius: 0;
-      margin: 0;
-      padding: 13px 14px;
-      background: white;
+
+
+    #startButton {
+
+      background: var(--dark);
+
+      color: white;
+
+    }
+
+
+    #finishButton {
+
+      background: var(--red);
+
+      color: white;
+
+    }
+
+
+    #directButton {
+
+      background:
+        linear-gradient(
+          135deg,
+          #b38a17,
+          #e5c45b
+        );
+
       color: #111827;
-      font-size: 16px;
-      font-weight: 700;
+
     }
-    .candidate-item:last-child { border-bottom: 0; }
-    .candidate-item:hover { background: #f5f7fa; }
-    .selected-client {
-      margin-top: 8px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: #ecfdf3;
-      color: #166534;
-      font-size: 14px;
+
+
+    #confirmButton {
+
+      background: var(--green);
+
+      color: white;
+
+    }
+
+
+    #retryButton {
+
+      background: #64748b;
+
+      color: white;
+
+    }
+
+
+    #result {
+
+      line-height: 1.7;
+
+      font-size: 17px;
+
+    }
+
+
+    .listening {
+
+      color: var(--red);
+
       font-weight: 800;
+
     }
-    #clientSelect { display: none; }
+
+
+    .success {
+
+      color: var(--green);
+
+      font-weight: 900;
+
+      font-size: 19px;
+
+    }
+
+
+    .error {
+
+      color: var(--red);
+
+      font-weight: 800;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 상태
+       ======================================================================== */
+
+    .timer {
+
+      text-align: center;
+
+      font-size: 14px;
+
+      color: #6b7280;
+
+      margin-top: 9px;
+
+    }
+
+
+    .loading {
+
+      text-align: center;
+
+      padding: 10px 0;
+
+      color: #555;
+
+      font-weight: 700;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 확인 화면
+       ======================================================================== */
+
+    .preview-top {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 10px;
+
+      margin-bottom: 12px;
+
+    }
+
+
+    .preview-back {
+
+      width: auto;
+
+      margin: 0;
+
+      padding: 8px 12px;
+
+      border-radius: 10px;
+
+      background: #f1f5f9;
+
+      color: #475569;
+
+      font-size: 13px;
+
+      font-weight: 800;
+
+    }
+
+
+    .preview-step {
+
+      font-size: 12px;
+
+      font-weight: 900;
+
+      color: #64748b;
+
+    }
+
+
+    .preview-title {
+
+      font-size: 22px;
+
+      font-weight: 900;
+
+      margin-bottom: 8px;
+
+    }
+
+
+    .preview-badge {
+
+      display: inline-block;
+
+      padding: 5px 9px;
+
+      border-radius: 999px;
+
+      background: #f3f4f6;
+
+      color: #4b5563;
+
+      font-size: 12px;
+
+      font-weight: 800;
+
+      margin-bottom: 18px;
+
+    }
+
+
+    .edit-row {
+
+      margin-bottom: 16px;
+
+    }
+
+
+    .edit-label {
+
+      display: block;
+
+      color: #4b5563;
+
+      font-size: 14px;
+
+      font-weight: 800;
+
+      margin-bottom: 7px;
+
+    }
+
+
+    .edit-input,
+    .edit-select {
+
+      width: 100%;
+
+      padding: 14px;
+
+      border: 1px solid #d7dbe1;
+
+      border-radius: 12px;
+
+      background: white;
+
+      font-size: 17px;
+
+      outline: none;
+
+    }
+
+
+    .edit-input:focus,
+    .edit-select:focus {
+
+      border-color: var(--green);
+
+      box-shadow:
+        0 0 0 3px rgba(21,128,61,.10);
+
+    }
+
+
+    .size-display {
+
+      background: #f3f4f6;
+
+      color: #555;
+
+      cursor: not-allowed;
+
+    }
+
+
+    .help-text {
+
+      margin-top: 5px;
+
+      font-size: 12px;
+
+      color: #777;
+
+    }
+
+
+    .original-text {
+
+      background: #f3f4f6;
+
+      padding: 14px;
+
+      border-radius: 12px;
+
+      margin-top: 18px;
+
+      font-size: 15px;
+
+      line-height: 1.6;
+
+    }
+
+
+    .button-group {
+
+      margin-top: 19px;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 거래처 검색 + 오른쪽 ▼ 선택
+       ======================================================================== */
+
+    .client-choice-row {
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        150px;
+
+      gap: 8px;
+
+      align-items: stretch;
+
+    }
+
+
+    .client-search-wrap {
+
+      position: relative;
+
+      min-width: 0;
+
+    }
+
+
+    .client-search-input {
+
+      padding-left: 43px;
+
+    }
+
+
+    .search-icon {
+
+      position: absolute;
+
+      left: 14px;
+
+      top: 13px;
+
+      font-size: 20px;
+
+      z-index: 2;
+
+      pointer-events: none;
+
+    }
+
+
+    /*
+     * ⭐ 기존에는 숨겨져 있던 거래처 Select를
+     * 다시 실제 화면에 표시합니다.
+     */
+
+    #clientSelect {
+
+      display: block;
+
+      min-width: 0;
+
+      cursor: pointer;
+
+      padding-right: 10px;
+
+    }
+
+
+    .client-candidates {
+
+      margin-top: 7px;
+
+      border: 1px solid #e1e5ea;
+
+      border-radius: 12px;
+
+      overflow: hidden;
+
+      background: white;
+
+      max-height: 220px;
+
+      overflow-y: auto;
+
+    }
+
+
+    .candidate-empty {
+
+      padding: 13px;
+
+      color: #777;
+
+      font-size: 14px;
+
+    }
+
+
+    .candidate-item {
+
+      width: 100%;
+
+      text-align: left;
+
+      border: 0;
+
+      border-bottom: 1px solid #edf0f3;
+
+      border-radius: 0;
+
+      margin: 0;
+
+      padding: 13px 14px;
+
+      background: white;
+
+      color: #111827;
+
+      font-size: 16px;
+
+      font-weight: 700;
+
+    }
+
+
+    .candidate-item:last-child {
+
+      border-bottom: 0;
+
+    }
+
+
+    .candidate-item:hover {
+
+      background: #f5f7fa;
+
+    }
+
+
+    .selected-client {
+
+      margin-top: 8px;
+
+      padding: 10px 12px;
+
+      border-radius: 10px;
+
+      background: #ecfdf3;
+
+      color: #166534;
+
+      font-size: 14px;
+
+      font-weight: 800;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 기타
+       ======================================================================== */
 
     .mode-hint {
+
       display: flex;
+
       gap: 7px;
+
       flex-wrap: wrap;
+
       margin: -4px 0 16px;
+
     }
-    .hint-chip { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 999px; padding: 5px 9px; font-size: 12px; color: #64748b; font-weight: 700; }
+
+
+    .hint-chip {
+
+      background: #f8fafc;
+
+      border: 1px solid #e5e7eb;
+
+      border-radius: 999px;
+
+      padding: 5px 9px;
+
+      font-size: 12px;
+
+      color: #64748b;
+
+      font-weight: 700;
+
+    }
+
+
+    @media (max-width: 500px) {
+
+      .client-choice-row {
+
+        grid-template-columns:
+          minmax(0, 1fr)
+          125px;
+
+      }
+
+    }
+
 
     @media (max-width: 420px) {
-      .hero { height: 285px; }
-      .hero-title { font-size: 25px; }
-      .card { padding: 16px; }
-      button { font-size: 18px; }
+
+      .hero {
+
+        height: 285px;
+
+      }
+
+
+      .hero-title {
+
+        font-size: 25px;
+
+      }
+
+
+      .card {
+
+        padding: 16px;
+
+      }
+
+
+      button {
+
+        font-size: 18px;
+
+      }
+
+
+      .client-choice-row {
+
+        grid-template-columns:
+          minmax(0, 1fr)
+          115px;
+
+      }
+
+      .edit-select {
+
+        font-size: 15px;
+
+      }
+
     }
+
   </style>
+
 </head>
 
+
 <body>
+
 <div class="container">
 
-  <!-- ============================================================
-       🐐 RONALDO FENOMENO HERO
-       ------------------------------------------------------------
-       GitHub Pages 같은 폴더에 ronaldo-fenomeno.png를 올려주세요.
-       ============================================================ -->
-  <div class="hero">
-    <img class="hero-image" src="ronaldo-fenomeno.png" alt="Ronaldo Nazario">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <div class="hero-kicker">BRASIL • FENÔMENO</div>
-      <h1 class="hero-title">푸로찜 에스<br>입출고 시스템</h1>
-      <div class="hero-sub">빠르게 말하고 · 정확하게 확인하고 · 바로 등록하세요</div>
+
+  <!-- ======================================================================
+       ⭐⭐⭐ STEP 1 : 입력 화면
+       ====================================================================== -->
+
+  <div id="inputScreen" class="screen">
+
+
+    <!-- ================================================================
+         HERO
+         ================================================================ -->
+
+    <div class="hero">
+
+      <img
+        class="hero-image"
+        src="ronaldo-fenomeno.png"
+        alt="Ronaldo Nazario"
+      >
+
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+
+        <div class="hero-kicker">
+          BRASIL • FENÔMENO
+        </div>
+
+        <h1 class="hero-title">
+          푸로찜 에스<br>
+          입출고 시스템
+        </h1>
+
+        <div class="hero-sub">
+          빠르게 말하고 · 정확하게 확인하고 · 바로 등록하세요
+        </div>
+
+      </div>
+
     </div>
+
+
+    <!-- ================================================================
+         STEP 표시
+         ================================================================ -->
+
+    <div class="step-indicator">
+
+      <div class="step-dot active">
+        1
+      </div>
+
+      <div class="step-line"></div>
+
+      <div class="step-dot">
+        2
+      </div>
+
+      <div class="step-line"></div>
+
+      <div class="step-dot">
+        3
+      </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         입력 카드
+         ================================================================ -->
+
+    <div class="card">
+
+      <button id="startButton">
+        🗣️ 말하기 시작
+      </button>
+
+      <button
+        id="finishButton"
+        disabled
+      >
+        🛑 말하기 완료
+      </button>
+
+      <button id="directButton">
+        ✏️ 직접 입력하기
+      </button>
+
+      <div
+        id="timer"
+        class="timer"
+      ></div>
+
+    </div>
+
+
+    <!-- ================================================================
+         ⭐ 상태 메시지
+         ================================================================ -->
+
+    <div
+      id="statusCard"
+      class="card"
+    >
+
+      <div id="result">
+        버튼을 누르고 말씀해주세요.
+      </div>
+
+    </div>
+
+
   </div>
 
-  <!-- ============================================================
-       🎙️ 입력 카드
-       ============================================================ -->
-  <div class="card">
-    <button id="startButton">🗣️ 말하기 시작</button>
-    <button id="finishButton" disabled>🛑 말하기 완료</button>
-    <button id="directButton">✏️ 직접 입력하기</button>
-    <div id="timer" class="timer"></div>
+
+  <!-- ======================================================================
+       ⭐⭐⭐ STEP 2 / STEP 3 : 확인 / 완료 화면
+       ====================================================================== -->
+
+  <div
+    id="resultCard"
+    class="card screen step-hidden"
+  >
+
+    <div id="result"></div>
+
   </div>
 
-  <!-- ============================================================
-       📋 결과 / 공통 확인 카드
-       ============================================================ -->
-  <div id="resultCard" class="card">
-    <div id="result">버튼을 누르고 말씀해주세요.</div>
-  </div>
 
 </div>
 
+
 <script>
+
 
 // ============================================================================
 // ⭐ 1. GAS 주소
 // ============================================================================
+
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbxZRrv3pOuGN_yncoZ4ov9ODiMHYoO9E_JhtnOobhjPIcquWVj1PGTXcozINOe68doA/exec";
+  "https://script.google.com/macros/s/AKfycbxAmrJlcYFsF1KG1Rn6at-8Ff4SG0cWT2jA-dFOqbHJDBPsKhxjA_IbW5uxN8ttkwc/exec";
+
 
 // ============================================================================
 // ⭐ 2. 음성인식
 // ============================================================================
+
 const SpeechRecognition =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
 
+
 if (!SpeechRecognition) {
+
   document.getElementById("result").innerHTML =
     '<div class="error">' +
     '❌ 이 브라우저에서는 음성인식을 지원하지 않습니다.<br><br>' +
     '삼성 인터넷 또는 Chrome을 사용해주세요.' +
     '</div>';
+
 }
+
 
 // ============================================================================
 // ⭐ 3. 상태 변수
 // ============================================================================
+
 let recognition = null;
+
 let isRecording = false;
+
 let finishRequested = false;
+
 let recognitionRunning = false;
+
 let finalTranscript = "";
+
 let interimTranscript = "";
+
 let displayedTranscript = "";
+
 let recordingTimer = null;
+
 let isSending = false;
+
 let pendingToken = null;
+
 let clientList = [];
+
 let productList = [];
+
 let deliveryTypeList = [];
+
 let secondDeliveryLocationList = [];
+
 let currentInputMode = "voice";
+
 
 // ============================================================================
 // ⭐ 4. DOM
 // ============================================================================
-const startButton = document.getElementById("startButton");
-const finishButton = document.getElementById("finishButton");
-const directButton = document.getElementById("directButton");
-const result = document.getElementById("result");
-const timer = document.getElementById("timer");
+
+const inputScreen =
+  document.getElementById("inputScreen");
+
+const resultCard =
+  document.getElementById("resultCard");
+
+const statusCard =
+  document.getElementById("statusCard");
+
+const startButton =
+  document.getElementById("startButton");
+
+const finishButton =
+  document.getElementById("finishButton");
+
+const directButton =
+  document.getElementById("directButton");
+
+const timer =
+  document.getElementById("timer");
+
+
+// ============================================================================
+// ⭐ 화면 전환
+// ============================================================================
+//
+// STEP 1
+// → 입력 화면
+//
+// STEP 2
+// → 확인 화면
+//
+// STEP 3
+// → 완료 화면
+//
+// 기존 기능에는 영향을 주지 않고
+// "어떤 화면을 보여줄지"만 관리합니다.
+// ============================================================================
+
+function showInputScreen() {
+
+  inputScreen.classList.remove("step-hidden");
+
+  resultCard.classList.add("step-hidden");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+function showResultScreen() {
+
+  inputScreen.classList.add("step-hidden");
+
+  resultCard.classList.remove("step-hidden");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+// ============================================================================
+// ⭐ 화면 내부 결과 출력
+// ============================================================================
+//
+// STEP 1에서는 statusCard 안의 result
+// STEP 2/3에서는 resultCard 안의 result
+//
+// 동일한 id="result"를 사용할 수 없으므로
+// 실제 HTML에서는 각각 별도 ID를 사용합니다.
+//
+// ============================================================================
+
+const inputResult =
+  document.querySelector("#statusCard #result");
+
+
+const previewResult =
+  document.querySelector("#resultCard #result");
+
 
 // ============================================================================
 // 🧹 5. 텍스트 정리
 // ============================================================================
+
 function cleanText(text) {
-  return String(text || "").replace(/\s+/g, " ").trim();
+
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .trim();
+
 }
+
 
 // ============================================================================
 // 🧹 6. 중복 문장 방지
 // ============================================================================
-function appendWithoutDuplicate(current, addition) {
-  addition = cleanText(addition);
-  if (!addition) return current;
-  if (!current) return addition;
-  if (current === addition) return current;
-  if (current.includes(addition)) return current;
-  if (addition.includes(current)) return addition;
+
+function appendWithoutDuplicate(
+  current,
+  addition
+) {
+
+  addition =
+    cleanText(addition);
+
+  if (!addition)
+    return current;
+
+  if (!current)
+    return addition;
+
+  if (current === addition)
+    return current;
+
+  if (current.includes(addition))
+    return current;
+
+  if (addition.includes(current))
+    return addition;
+
   return current + " " + addition;
+
 }
+
 
 // ============================================================================
 // 👀 7. 현재 음성 화면
 // ============================================================================
-function showCurrentText() {
-  const finalText = cleanText(finalTranscript);
-  const interimText = cleanText(interimTranscript);
-  displayedTranscript = cleanText(finalText + (interimText ? " " + interimText : ""));
 
-  result.innerHTML =
-    '<div class="listening">🎙️ 듣고 있어요...<br><br></div>' +
-    escapeHtml(displayedTranscript || "말씀해주세요.");
+function showCurrentText() {
+
+  const finalText =
+    cleanText(
+      finalTranscript
+    );
+
+
+  const interimText =
+    cleanText(
+      interimTranscript
+    );
+
+
+  displayedTranscript =
+    cleanText(
+      finalText +
+      (
+        interimText
+          ? " " + interimText
+          : ""
+      )
+    );
+
+
+  inputResult.innerHTML =
+
+    '<div class="listening">' +
+    '🎙️ 듣고 있어요...<br><br>' +
+    '</div>' +
+
+    escapeHtml(
+      displayedTranscript ||
+      "말씀해주세요."
+    );
+
 }
+
 
 // ============================================================================
 // 🎙️ 8. 음성인식 시작
 // ============================================================================
+
 function startRecognition() {
-  if (!SpeechRecognition || !recognition || recognitionRunning) return;
-  try {
-    recognition.start();
-  } catch (error) {
-    console.log("recognition.start 오류:", error);
+
+  if (
+    !SpeechRecognition ||
+    !recognition ||
+    recognitionRunning
+  ) {
+
+    return;
+
   }
+
+
+  try {
+
+    recognition.start();
+
+  } catch (error) {
+
+    console.log(
+      "recognition.start 오류:",
+      error
+    );
+
+  }
+
 }
+
 
 // ============================================================================
 // 🟢 9. 말하기 시작 / 이어서 말하기
 // ============================================================================
-startButton.addEventListener("click", function() {
-  if (isSending || !SpeechRecognition) return;
 
-  currentInputMode = "voice";
+startButton.addEventListener(
+  "click",
+  function() {
 
-  // ========================================================================
-  // ⭐ 이어서 말하기
-  // ========================================================================
-  if (isRecording) {
-    finishRequested = false;
-    startButton.disabled = true;
-    finishButton.disabled = false;
+    if (
+      isSending ||
+      !SpeechRecognition
+    ) {
 
-    result.innerHTML =
-      '<div class="listening">🎙️ 다시 듣고 있어요...<br><br></div>' +
-      (displayedTranscript ? escapeHtml(displayedTranscript) : "말씀해주세요.");
+      return;
+
+    }
+
+
+    currentInputMode =
+      "voice";
+
+
+    // ======================================================================
+    // ⭐ 이어서 말하기
+    // ======================================================================
+
+    if (isRecording) {
+
+      finishRequested =
+        false;
+
+      startButton.disabled =
+        true;
+
+      finishButton.disabled =
+        false;
+
+
+      inputResult.innerHTML =
+
+        '<div class="listening">' +
+        '🎙️ 다시 듣고 있어요...<br><br>' +
+        '</div>' +
+
+        (
+          displayedTranscript
+            ? escapeHtml(
+                displayedTranscript
+              )
+            : "말씀해주세요."
+        );
+
+
+      startRecognition();
+
+      return;
+
+    }
+
+
+    // ======================================================================
+    // ⭐ 새로운 녹음
+    // ======================================================================
+
+    pendingToken =
+      null;
+
+    finalTranscript =
+      "";
+
+    interimTranscript =
+      "";
+
+    displayedTranscript =
+      "";
+
+    finishRequested =
+      false;
+
+    isRecording =
+      true;
+
+    startButton.disabled =
+      true;
+
+    finishButton.disabled =
+      false;
+
+    directButton.disabled =
+      true;
+
+    startButton.textContent =
+      "🎤 듣는 중";
+
+    timer.textContent =
+      "⏱️ 최대 30초";
+
+
+    inputResult.innerHTML =
+      '<div class="listening">' +
+      '🎙️ 듣고 있어요...<br><br>' +
+      '말씀해주세요.' +
+      '</div>';
+
+
+    recognition =
+      new SpeechRecognition();
+
+
+    recognition.lang =
+      "ko-KR";
+
+    recognition.continuous =
+      true;
+
+    recognition.interimResults =
+      true;
+
+    recognition.maxAlternatives =
+      1;
+
+
+    recognition.onresult =
+      function(event) {
+
+        let newFinal =
+          "";
+
+        let newInterim =
+          "";
+
+
+        for (
+          let i = event.resultIndex;
+          i < event.results.length;
+          i++
+        ) {
+
+          const transcript =
+            cleanText(
+              event.results[i][0].transcript
+            );
+
+
+          if (
+            event.results[i].isFinal
+          ) {
+
+            newFinal =
+              appendWithoutDuplicate(
+                newFinal,
+                transcript
+              );
+
+          } else {
+
+            newInterim =
+              appendWithoutDuplicate(
+                newInterim,
+                transcript
+              );
+
+          }
+
+        }
+
+
+        if (newFinal) {
+
+          finalTranscript =
+            appendWithoutDuplicate(
+              finalTranscript,
+              newFinal
+            );
+
+        }
+
+
+        interimTranscript =
+          newInterim;
+
+
+        showCurrentText();
+
+      };
+
+
+    recognition.onend =
+      function() {
+
+        recognitionRunning =
+          false;
+
+
+        if (
+          isRecording &&
+          !finishRequested
+        ) {
+
+          startButton.disabled =
+            false;
+
+          startButton.textContent =
+            "🎤 이어서 말하기";
+
+          finishButton.disabled =
+            false;
+
+
+          if (displayedTranscript) {
+
+            inputResult.innerHTML =
+              escapeHtml(
+                displayedTranscript
+              );
+
+          }
+
+        }
+
+      };
+
+
+    recognition.onerror =
+      function(event) {
+
+        console.log(
+          "음성인식 오류:",
+          event.error
+        );
+
+
+        recognitionRunning =
+          false;
+
+
+        if (
+          event.error ===
+          "not-allowed"
+        ) {
+
+          inputResult.innerHTML =
+            '<div class="error">' +
+            '❌ 마이크 사용이 차단되었습니다.<br><br>' +
+            '브라우저 주소창의 마이크 권한을 허용해주세요.' +
+            '</div>';
+
+
+          isRecording =
+            false;
+
+          finishRequested =
+            true;
+
+          startButton.disabled =
+            false;
+
+          startButton.textContent =
+            "🗣️ 말하기 시작";
+
+          finishButton.disabled =
+            true;
+
+          directButton.disabled =
+            false;
+
+          return;
+
+        }
+
+
+        if (
+          event.error === "no-speech" ||
+          event.error === "aborted"
+        ) {
+
+          return;
+
+        }
+
+      };
+
+
+    recognition.onstart =
+      function() {
+
+        recognitionRunning =
+          true;
+
+      };
+
 
     startRecognition();
-    return;
+
+
+    clearTimeout(
+      recordingTimer
+    );
+
+
+    recordingTimer =
+      setTimeout(
+        function() {
+
+          if (isRecording) {
+
+            finishRecording();
+
+          }
+
+        },
+        30000
+      );
+
   }
+);
 
-  // ========================================================================
-  // ⭐ 새로운 녹음
-  // ========================================================================
-  pendingToken = null;
-  finalTranscript = "";
-  interimTranscript = "";
-  displayedTranscript = "";
-  finishRequested = false;
-  isRecording = true;
-  startButton.disabled = true;
-  finishButton.disabled = false;
-  directButton.disabled = true;
-  startButton.textContent = "🎤 듣는 중";
-  timer.textContent = "⏱️ 최대 30초";
-
-  result.innerHTML =
-    '<div class="listening">🎙️ 듣고 있어요...<br><br>말씀해주세요.</div>';
-
-  recognition = new SpeechRecognition();
-  recognition.lang = "ko-KR";
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-
-  recognition.onresult = function(event) {
-    let newFinal = "";
-    let newInterim = "";
-
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const transcript = cleanText(event.results[i][0].transcript);
-      if (event.results[i].isFinal) {
-        newFinal = appendWithoutDuplicate(newFinal, transcript);
-      } else {
-        newInterim = appendWithoutDuplicate(newInterim, transcript);
-      }
-    }
-
-    if (newFinal) {
-      finalTranscript = appendWithoutDuplicate(finalTranscript, newFinal);
-    }
-
-    interimTranscript = newInterim;
-    showCurrentText();
-  };
-
-  recognition.onend = function() {
-    recognitionRunning = false;
-
-    if (isRecording && !finishRequested) {
-      startButton.disabled = false;
-      startButton.textContent = "🎤 이어서 말하기";
-      finishButton.disabled = false;
-
-      if (displayedTranscript) {
-        result.innerHTML = escapeHtml(displayedTranscript);
-      }
-    }
-  };
-
-  recognition.onerror = function(event) {
-    console.log("음성인식 오류:", event.error);
-    recognitionRunning = false;
-
-    if (event.error === "not-allowed") {
-      result.innerHTML =
-        '<div class="error">❌ 마이크 사용이 차단되었습니다.<br><br>브라우저 주소창의 마이크 권한을 허용해주세요.</div>';
-      isRecording = false;
-      finishRequested = true;
-      startButton.disabled = false;
-      startButton.textContent = "🗣️ 말하기 시작";
-      finishButton.disabled = true;
-      directButton.disabled = false;
-      return;
-    }
-
-    if (event.error === "no-speech" || event.error === "aborted") return;
-  };
-
-  recognition.onstart = function() {
-    recognitionRunning = true;
-  };
-
-  startRecognition();
-
-  clearTimeout(recordingTimer);
-  recordingTimer = setTimeout(function() {
-    if (isRecording) finishRecording();
-  }, 30000);
-});
 
 // ============================================================================
 // 🛑 10. 말하기 완료
 // ============================================================================
-finishButton.addEventListener("click", function() {
-  finishRecording();
-});
+
+finishButton.addEventListener(
+  "click",
+  function() {
+
+    finishRecording();
+
+  }
+);
+
 
 // ============================================================================
 // ✏️ 10-1. 직접 입력하기
 // ============================================================================
 //
-// ⭐ 핵심 원칙
-// 음성 입력과 직접 입력은 마지막 확인/수정 화면을 공유합니다.
-// 직접 입력 전용 Notion 등록 루트를 새로 만들지 않습니다.
+// ⭐ 음성 입력과 직접 입력은 마지막 확인/수정 화면을 공유합니다.
 //
 // ============================================================================
-directButton.addEventListener("click", function() {
-  startDirectInput();
-});
+
+directButton.addEventListener(
+  "click",
+  function() {
+
+    startDirectInput();
+
+  }
+);
+
 
 async function startDirectInput() {
-  if (isSending) return;
 
-  currentInputMode = "direct";
-  pendingToken = null;
+  if (isSending)
+    return;
+
+
+  currentInputMode =
+    "direct";
+
+  pendingToken =
+    null;
+
 
   if (isRecording) {
+
     finishRecording();
+
     return;
+
   }
 
-  isSending = true;
-  directButton.disabled = true;
-  startButton.disabled = true;
-  finishButton.disabled = true;
 
-  result.innerHTML =
-    '<div class="listening">✏️ 직접 입력 화면을 준비하고 있어요...<br><br>잠시만 기다려주세요.</div>';
+  isSending =
+    true;
+
+
+  directButton.disabled =
+    true;
+
+  startButton.disabled =
+    true;
+
+  finishButton.disabled =
+    true;
+
+
+  inputResult.innerHTML =
+    '<div class="listening">' +
+    '✏️ 직접 입력 화면을 준비하고 있어요...<br><br>' +
+    '잠시만 기다려주세요.' +
+    '</div>';
+
 
   try {
-    const data = await postToGAS({ action: "directPreview" });
 
-    if (data.status !== "preview") {
-      throw new Error(data.message || "직접 입력 화면을 준비하지 못했습니다.");
+    const data =
+      await postToGAS({
+        action: "directPreview"
+      });
+
+
+    if (
+      data.status !== "preview"
+    ) {
+
+      throw new Error(
+        data.message ||
+        "직접 입력 화면을 준비하지 못했습니다."
+      );
+
     }
 
-    pendingToken = data.token;
-    showPreview(data);
-  } catch (error) {
-    console.error(error);
-    result.innerHTML =
-      '<div class="error">❌ 직접 입력 화면을 열지 못했어요.<br><br>' +
-      escapeHtml(error.message || String(error)) +
-      '</div>' +
-      '<div class="button-group"><button id="retryButton" style="background:#64748b;color:white;">🔄 처음 화면으로</button></div>';
 
-    document.getElementById("retryButton").addEventListener("click", resetForNewRecording);
+    pendingToken =
+      data.token;
+
+
+    showPreview(data);
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    inputResult.innerHTML =
+
+      '<div class="error">' +
+      '❌ 직접 입력 화면을 열지 못했어요.<br><br>' +
+      escapeHtml(
+        error.message ||
+        String(error)
+      ) +
+      '</div>' +
+
+      '<div class="button-group">' +
+
+      '<button id="directRetryButton" ' +
+      'style="background:#64748b;color:white;">' +
+      '🔄 처음 화면으로' +
+      '</button>' +
+
+      '</div>';
+
+
+    document
+      .getElementById(
+        "directRetryButton"
+      )
+      .addEventListener(
+        "click",
+        resetForNewRecording
+      );
+
+
   } finally {
-    isSending = false;
-    directButton.disabled = false;
+
+    isSending =
+      false;
+
+    directButton.disabled =
+      false;
+
   }
+
 }
+
 
 // ============================================================================
 // 🛑 11. 녹음 종료
 // ============================================================================
-function finishRecording() {
-  if (!isRecording) return;
 
-  isRecording = false;
-  finishRequested = true;
-  clearTimeout(recordingTimer);
+function finishRecording() {
+
+  if (!isRecording)
+    return;
+
+
+  isRecording =
+    false;
+
+  finishRequested =
+    true;
+
+
+  clearTimeout(
+    recordingTimer
+  );
+
 
   if (recognition) {
+
     try {
+
       recognition.stop();
+
     } catch (error) {
-      console.log("recognition.stop 오류:", error);
+
+      console.log(
+        "recognition.stop 오류:",
+        error
+      );
+
     }
+
   }
 
-  recognitionRunning = false;
-  startButton.disabled = false;
-  startButton.textContent = "🗣️ 말하기 시작";
-  finishButton.disabled = true;
-  directButton.disabled = false;
-  timer.textContent = "";
 
-  const text = cleanText(finalTranscript || displayedTranscript);
+  recognitionRunning =
+    false;
+
+
+  startButton.disabled =
+    false;
+
+  startButton.textContent =
+    "🗣️ 말하기 시작";
+
+  finishButton.disabled =
+    true;
+
+  directButton.disabled =
+    false;
+
+  timer.textContent =
+    "";
+
+
+  const text =
+    cleanText(
+      finalTranscript ||
+      displayedTranscript
+    );
+
 
   if (!text) {
-    result.innerHTML =
-      '<div class="error">❌ 음성 내용을 듣지 못했어요.<br><br>다시 말해주세요.</div>';
+
+    inputResult.innerHTML =
+      '<div class="error">' +
+      '❌ 음성 내용을 듣지 못했어요.<br><br>' +
+      '다시 말해주세요.' +
+      '</div>';
+
     return;
+
   }
 
+
   finalizeAndSend(text);
+
 }
+
 
 // ============================================================================
 // 📡 12. 분석 요청
 // ============================================================================
+
 function finalizeAndSend(text) {
-  if (isSending) return;
-  isSending = true;
-  result.innerHTML =
-    '<div class="listening">🔎 음성을 분석하고 있어요...<br><br>잠시만 기다려주세요.</div>';
+
+  if (isSending)
+    return;
+
+
+  isSending =
+    true;
+
+
+  inputResult.innerHTML =
+    '<div class="listening">' +
+    '🔎 음성을 분석하고 있어요...<br><br>' +
+    '잠시만 기다려주세요.' +
+    '</div>';
+
+
   sendAnalyzeToGAS(text);
+
 }
+
 
 // ============================================================================
 // 📡 13. GAS POST 공통
 // ============================================================================
-async function postToGAS(payload) {
-  const response = await fetch(GAS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
-  });
 
-  const raw = await response.text();
-  console.log("GAS 응답:", raw);
+async function postToGAS(payload) {
+
+  const response =
+    await fetch(
+      GAS_URL,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+
+        body:
+          JSON.stringify(payload)
+
+      }
+    );
+
+
+  const raw =
+    await response.text();
+
+
+  console.log(
+    "GAS 응답:",
+    raw
+  );
+
 
   let data;
+
+
   try {
-    data = JSON.parse(raw);
+
+    data =
+      JSON.parse(raw);
+
   } catch (jsonError) {
-    throw new Error("GAS 응답을 읽지 못했습니다.\n\n" + raw);
+
+    throw new Error(
+      "GAS 응답을 읽지 못했습니다.\n\n" +
+      raw
+    );
+
   }
 
+
   return data;
+
 }
+
 
 // ============================================================================
 // 📡 14. GAS 분석 요청
 // ============================================================================
-async function sendAnalyzeToGAS(text) {
-  try {
-    const data = await postToGAS({ action: "analyze", text: text });
 
-    if (data.status !== "preview") {
-      throw new Error(data.message || "음성 분석에 실패했습니다.");
+async function sendAnalyzeToGAS(text) {
+
+  try {
+
+    const data =
+      await postToGAS({
+        action: "analyze",
+        text: text
+      });
+
+
+    if (
+      data.status !== "preview"
+    ) {
+
+      throw new Error(
+        data.message ||
+        "음성 분석에 실패했습니다."
+      );
+
     }
 
-    pendingToken = data.token;
-    showPreview(data);
-  } catch (error) {
-    console.error(error);
-    result.innerHTML =
-      '<div class="error">❌ 분석하지 못했어요.<br><br>' +
-      escapeHtml(error.message || String(error)) +
-      '</div>' +
-      '<div class="button-group"><button id="retryButton" style="background:#64748b;color:white;">❌ 다시 말하기</button></div>';
 
-    document.getElementById("retryButton").addEventListener("click", resetForNewRecording);
+    pendingToken =
+      data.token;
+
+
+    showPreview(data);
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    inputResult.innerHTML =
+
+      '<div class="error">' +
+      '❌ 분석하지 못했어요.<br><br>' +
+      escapeHtml(
+        error.message ||
+        String(error)
+      ) +
+      '</div>' +
+
+      '<div class="button-group">' +
+
+      '<button id="analyzeRetryButton" ' +
+      'style="background:#64748b;color:white;">' +
+      '❌ 다시 말하기' +
+      '</button>' +
+
+      '</div>';
+
+
+    document
+      .getElementById(
+        "analyzeRetryButton"
+      )
+      .addEventListener(
+        "click",
+        resetForNewRecording
+      );
+
+
   } finally {
-    isSending = false;
+
+    isSending =
+      false;
+
   }
+
 }
+
 
 // ============================================================================
 // 📋 15. 초기 거래처 / 제품 / Select 목록
 // ============================================================================
-async function loadInitialData() {
-  try {
-    const data = await postToGAS({ action: "initialData" });
 
-    if (data.status !== "success") {
-      throw new Error(data.message || "초기 데이터를 가져오지 못했습니다.");
+async function loadInitialData() {
+
+  try {
+
+    const data =
+      await postToGAS({
+        action: "initialData"
+      });
+
+
+    if (
+      data.status !== "success"
+    ) {
+
+      throw new Error(
+        data.message ||
+        "초기 데이터를 가져오지 못했습니다."
+      );
+
     }
 
-    clientList = Array.isArray(data.clients) ? data.clients.slice() : [];
-    productList = Array.isArray(data.products) ? data.products.slice() : [];
-    deliveryTypeList = Array.isArray(data.deliveryTypes) ? data.deliveryTypes : [];
-    secondDeliveryLocationList = Array.isArray(data.secondDeliveryLocations) ? data.secondDeliveryLocations : [];
 
-    // ⭐ 거래처는 가나다순으로 정렬
-    clientList.sort(function(a, b) {
-      return String(a.name || "").localeCompare(String(b.name || ""), "ko");
-    });
+    clientList =
+      Array.isArray(data.clients)
+        ? data.clients.slice()
+        : [];
 
+
+    productList =
+      Array.isArray(data.products)
+        ? data.products.slice()
+        : [];
+
+
+    deliveryTypeList =
+      Array.isArray(data.deliveryTypes)
+        ? data.deliveryTypes
+        : [];
+
+
+    secondDeliveryLocationList =
+      Array.isArray(
+        data.secondDeliveryLocations
+      )
+        ? data.secondDeliveryLocations
+        : [];
+
+
+    // ======================================================================
+    // ⭐⭐⭐ 거래처 가나다순
+    // ======================================================================
+
+    clientList.sort(
+      function(a, b) {
+
+        return String(
+          a.name || ""
+        ).localeCompare(
+          String(
+            b.name || ""
+          ),
+          "ko"
+        );
+
+      }
+    );
+
+
+    // ======================================================================
     // ⭐ 제품은 15 → 20 → 12 순서
-    productList = sortProductsByRequestedOrder(productList);
+    // ======================================================================
 
-    console.log("거래처 수:", clientList.length);
-    console.log("제품 수:", productList.length);
-    console.log("납품형태 옵션:", deliveryTypeList);
-    console.log("제2배송지 옵션:", secondDeliveryLocationList);
+    productList =
+      sortProductsByRequestedOrder(
+        productList
+      );
+
+
+    console.log(
+      "거래처 수:",
+      clientList.length
+    );
+
+
+    console.log(
+      "제품 수:",
+      productList.length
+    );
+
+
+    console.log(
+      "납품형태 옵션:",
+      deliveryTypeList
+    );
+
+
+    console.log(
+      "제2배송지 옵션:",
+      secondDeliveryLocationList
+    );
+
+
   } catch (error) {
-    console.error("초기 데이터 오류:", error);
-    result.innerHTML =
-      '<div class="error">❌ 거래처 / 제품 목록을 가져오지 못했습니다.<br><br>' +
-      escapeHtml(error.message || String(error)) +
+
+    console.error(
+      "초기 데이터 오류:",
+      error
+    );
+
+
+    inputResult.innerHTML =
+      '<div class="error">' +
+      '❌ 거래처 / 제품 목록을 가져오지 못했습니다.<br><br>' +
+      escapeHtml(
+        error.message ||
+        String(error)
+      ) +
       '</div>';
+
   }
+
 }
+
 
 // ============================================================================
 // 📋 15-1. 제품 표시 순서
 // ============================================================================
-function sortProductsByRequestedOrder(products) {
-  const order = { "15 KG": 0, "20 KG": 1, "12 KG": 2 };
-  return products.slice().sort(function(a, b) {
-    const aSize = getProductSize(a.name);
-    const bSize = getProductSize(b.name);
-    const ai = Object.prototype.hasOwnProperty.call(order, aSize) ? order[aSize] : 99;
-    const bi = Object.prototype.hasOwnProperty.call(order, bSize) ? order[bSize] : 99;
-    if (ai !== bi) return ai - bi;
-    return String(a.name || "").localeCompare(String(b.name || ""), "ko");
-  });
+
+function sortProductsByRequestedOrder(
+  products
+) {
+
+  const order = {
+
+    "15 KG": 0,
+
+    "20 KG": 1,
+
+    "12 KG": 2
+
+  };
+
+
+  return products
+    .slice()
+    .sort(
+      function(a, b) {
+
+        const aSize =
+          getProductSize(
+            a.name
+          );
+
+
+        const bSize =
+          getProductSize(
+            b.name
+          );
+
+
+        const ai =
+          Object.prototype
+            .hasOwnProperty
+            .call(
+              order,
+              aSize
+            )
+              ? order[aSize]
+              : 99;
+
+
+        const bi =
+          Object.prototype
+            .hasOwnProperty
+            .call(
+              order,
+              bSize
+            )
+              ? order[bSize]
+              : 99;
+
+
+        if (
+          ai !== bi
+        ) {
+
+          return ai - bi;
+
+        }
+
+
+        return String(
+          a.name || ""
+        ).localeCompare(
+          String(
+            b.name || ""
+          ),
+          "ko"
+        );
+
+      }
+    );
+
 }
+
 
 // ============================================================================
 // 📏 15-2. 제품명에서 규격 찾기
 // ============================================================================
-function getProductSize(productName) {
-  const text = String(productName || "");
-  if (/12\s*KG/i.test(text)) return "12 KG";
-  if (/15\s*KG/i.test(text)) return "15 KG";
-  if (/20\s*KG/i.test(text)) return "20 KG";
+
+function getProductSize(
+  productName
+) {
+
+  const text =
+    String(
+      productName || ""
+    );
+
+
+  if (
+    /12\s*KG/i.test(text)
+  )
+    return "12 KG";
+
+
+  if (
+    /15\s*KG/i.test(text)
+  )
+    return "15 KG";
+
+
+  if (
+    /20\s*KG/i.test(text)
+  )
+    return "20 KG";
+
+
   return "";
+
 }
 
-// ============================================================================
-// 👀 16. 미리보기 화면
-// ============================================================================
-//
-// ⭐ 음성 입력 / 직접 입력이 모두 이 함수로 들어옵니다.
-// ⭐ 거래처: 검색어 일부만 입력해도 후보를 보여줍니다.
-// ⭐ 여러 후보가 있으면 첫 번째를 자동 선택하지 않습니다.
-// ⭐ 제품: 15 → 20 → 12 순서.
-// ⭐ 음성에서 제품이 없으면 15 KG 기본값.
-//
-// ============================================================================
-function showPreview(data) {
-  const defaultProduct = getDefault15Product();
 
+// ============================================================================
+// 👀 16. 미리보기 / 확인 화면
+// ============================================================================
+//
+// ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+//
+// 기존에는 result 영역 밑에 확인 화면이 이어졌습니다.
+//
+// 이번에는:
+//
+// STEP 1 입력 화면
+//       ↓
+// STEP 2 확인 화면
+//
+// 으로 완전히 전환합니다.
+//
+// 따라서 첫 화면의
+//
+// 말하기 시작
+// 말하기 완료
+// 직접 입력
+//
+// 버튼은 확인 화면에서는 보이지 않습니다.
+//
+// ============================================================================
+
+function showPreview(data) {
+
+  const defaultProduct =
+    getDefault15Product();
+
+
+  // ========================================================================
   // ⭐ 음성에서 제품을 못 찾았으면 15 KG 기본값
-  if (!data.productPageId && defaultProduct) {
-    data.productPageId = defaultProduct.id;
-    data.productName = defaultProduct.name;
-    data.size = "15 KG";
+  // ========================================================================
+
+  if (
+    !data.productPageId &&
+    defaultProduct
+  ) {
+
+    data.productPageId =
+      defaultProduct.id;
+
+    data.productName =
+      defaultProduct.name;
+
+    data.size =
+      "15 KG";
+
   }
 
-  const client = clientList.find(function(item) {
-    return String(item.id) === String(data.clientPageId || "");
-  });
 
-  let productOptions = "";
-  productList.forEach(function(product) {
-    const selected = String(product.id) === String(data.productPageId || "") ? " selected" : "";
-    productOptions +=
-      '<option value="' + escapeAttribute(product.id) + '"' + selected + '>' +
-      escapeHtml(product.name) +
-      '</option>';
-  });
+  const client =
+    clientList.find(
+      function(item) {
 
-  let deliveryTypeOptions = "";
-  deliveryTypeList.forEach(function(option) {
-    const selected = option === "직송" ? " selected" : "";
-    deliveryTypeOptions +=
-      '<option value="' + escapeAttribute(option) + '"' + selected + '>' +
-      escapeHtml(option) +
-      '</option>';
-  });
+        return String(item.id) ===
+          String(
+            data.clientPageId || ""
+          );
 
-  let secondDeliveryOptions = '<option value="" selected>선택 안 함</option>';
-  secondDeliveryLocationList.forEach(function(option) {
-    secondDeliveryOptions +=
-      '<option value="' + escapeAttribute(option) + '">' +
-      escapeHtml(option) +
-      '</option>';
-  });
+      }
+    );
 
-  const inputLabel = currentInputMode === "direct" ? "✏️ 직접 입력 확인" : "🗣️ 음성 입력 확인";
-  const originalText = data.text || (currentInputMode === "direct" ? "직접 입력" : "");
+
+  // ========================================================================
+  // ⭐ 제품
+  // ========================================================================
+
+  let productOptions =
+    "";
+
+
+  productList.forEach(
+    function(product) {
+
+      const selected =
+        String(product.id) ===
+        String(
+          data.productPageId || ""
+        )
+          ? " selected"
+          : "";
+
+
+      productOptions +=
+
+        '<option value="' +
+        escapeAttribute(
+          product.id
+        ) +
+        '"' +
+        selected +
+        '>' +
+
+        escapeHtml(
+          product.name
+        ) +
+
+        '</option>';
+
+    }
+  );
+
+
+  // ========================================================================
+  // ⭐ 납품형태
+  // ========================================================================
+
+  let deliveryTypeOptions =
+    "";
+
+
+  deliveryTypeList.forEach(
+    function(option) {
+
+      const selected =
+        option === "직송"
+          ? " selected"
+          : "";
+
+
+      deliveryTypeOptions +=
+
+        '<option value="' +
+        escapeAttribute(
+          option
+        ) +
+        '"' +
+        selected +
+        '>' +
+
+        escapeHtml(
+          option
+        ) +
+
+        '</option>';
+
+    }
+  );
+
+
+  // ========================================================================
+  // ⭐ 제2배송지
+  // ========================================================================
+
+  let secondDeliveryOptions =
+
+    '<option value="" selected>' +
+    '선택 안 함' +
+    '</option>';
+
+
+  secondDeliveryLocationList.forEach(
+    function(option) {
+
+      secondDeliveryOptions +=
+
+        '<option value="' +
+        escapeAttribute(
+          option
+        ) +
+        '">' +
+
+        escapeHtml(
+          option
+        ) +
+
+        '</option>';
+
+    }
+  );
+
+
+  // ========================================================================
+  // ⭐ 입력 종류
+  // ========================================================================
+
+  const inputLabel =
+    currentInputMode === "direct"
+      ? "✏️ 직접 입력 확인"
+      : "🗣️ 음성 입력 확인";
+
+
+  const originalText =
+    data.text ||
+    (
+      currentInputMode === "direct"
+        ? "직접 입력"
+        : ""
+    );
+
+
+  // ========================================================================
+  // ⭐ 확인 화면
+  // ========================================================================
 
   const html =
-    '<div class="preview-title">📝 등록 내용을 확인해주세요</div>' +
-    '<div class="preview-badge">' + escapeHtml(inputLabel) + '</div>' +
 
-    '<div class="edit-row">' +
-      '<label class="edit-label">🏢 거래처</label>' +
-      '<div class="client-search-wrap">' +
-        '<span class="search-icon">🔍</span>' +
-        '<input id="clientSearchInput" class="edit-input client-search-input" type="search" autocomplete="off" placeholder="거래처 이름 일부를 입력하세요" value="' +
-          escapeAttribute(client ? client.name : "") +
-        '">' +
-        '<div id="clientCandidates" class="client-candidates"></div>' +
+    // ----------------------------------------------------------------------
+    // STEP 2 표시
+    // ----------------------------------------------------------------------
+
+    '<div class="step-indicator">' +
+
+      '<div class="step-dot">' +
+        '1' +
       '</div>' +
-      '<div id="selectedClient" class="selected-client" style="' + (client ? "" : "display:none;") + '">' +
-        (client ? "✅ 선택된 거래처: " + escapeHtml(client.name) : "") +
+
+      '<div class="step-line"></div>' +
+
+      '<div class="step-dot active">' +
+        '2' +
       '</div>' +
-      '<select id="clientSelect" class="edit-select">' +
-        clientList.map(function(item) {
-          return '<option value="' + escapeAttribute(item.id) + '"' +
-            (String(item.id) === String(data.clientPageId || "") ? " selected" : "") + '>' +
-            escapeHtml(item.name) + '</option>';
-        }).join("") +
+
+      '<div class="step-line"></div>' +
+
+      '<div class="step-dot">' +
+        '3' +
+      '</div>' +
+
+    '</div>' +
+
+
+    // ----------------------------------------------------------------------
+    // 위쪽
+    // ----------------------------------------------------------------------
+
+    '<div class="preview-top">' +
+
+      '<button ' +
+      'type="button" ' +
+      'id="previewBackButton" ' +
+      'class="preview-back">' +
+
+        '← 입력 화면' +
+
+      '</button>' +
+
+      '<div class="preview-step">' +
+        'STEP 2 · 확인' +
+      '</div>' +
+
+    '</div>' +
+
+
+    // ----------------------------------------------------------------------
+    // 제목
+    // ----------------------------------------------------------------------
+
+    '<div class="preview-title">' +
+      '📝 등록 내용을 확인해주세요' +
+    '</div>' +
+
+
+    '<div class="preview-badge">' +
+      escapeHtml(inputLabel) +
+    '</div>' +
+
+
+    // ======================================================================
+    // ⭐ 거래처
+    // ======================================================================
+
+    '<div class="edit-row">' +
+
+      '<label class="edit-label">' +
+        '🏢 거래처' +
+      '</label>' +
+
+
+      '<div class="client-choice-row">' +
+
+        // --------------------------------------------------------------
+        // 검색
+        // --------------------------------------------------------------
+
+        '<div class="client-search-wrap">' +
+
+          '<span class="search-icon">' +
+            '🔍' +
+          '</span>' +
+
+          '<input ' +
+            'id="clientSearchInput" ' +
+            'class="edit-input client-search-input" ' +
+            'type="search" ' +
+            'autocomplete="off" ' +
+            'placeholder="거래처 검색" ' +
+            'value="' +
+              escapeAttribute(
+                client
+                  ? client.name
+                  : ""
+              ) +
+            '"' +
+          '>' +
+
+        '</div>' +
+
+
+        // --------------------------------------------------------------
+        // ⭐ 오른쪽 ▼ 거래처 선택
+        // --------------------------------------------------------------
+
+        '<select ' +
+          'id="clientSelect" ' +
+          'class="edit-select"' +
+        '>' +
+
+          '<option value="">' +
+            '거래처 선택 ▼' +
+          '</option>' +
+
+          clientList.map(
+            function(item) {
+
+              return (
+
+                '<option value="' +
+                  escapeAttribute(
+                    item.id
+                  ) +
+                '"' +
+
+                (
+                  String(item.id) ===
+                  String(
+                    data.clientPageId ||
+                    ""
+                  )
+                    ? " selected"
+                    : ""
+                ) +
+
+                '>' +
+
+                escapeHtml(
+                  item.name
+                ) +
+
+                '</option>'
+
+              );
+
+            }
+          ).join("") +
+
+        '</select>' +
+
+      '</div>' +
+
+
+      // --------------------------------------------------------------------
+      // 검색 후보
+      // --------------------------------------------------------------------
+
+      '<div ' +
+        'id="clientCandidates" ' +
+        'class="client-candidates"' +
+      '></div>' +
+
+
+      // --------------------------------------------------------------------
+      // 선택된 거래처
+      // --------------------------------------------------------------------
+
+      '<div ' +
+        'id="selectedClient" ' +
+        'class="selected-client" ' +
+        'style="' +
+          (
+            client
+              ? ""
+              : "display:none;"
+          ) +
+        '"' +
+      '>' +
+
+        (
+          client
+            ? "✅ 선택된 거래처: " +
+              escapeHtml(
+                client.name
+              )
+            : ""
+        ) +
+
+      '</div>' +
+
+
+      '<div class="help-text">' +
+        '검색어 일부만 입력하거나 오른쪽 ▼에서 직접 선택하세요.' +
+        '<br>' +
+        '예: "미노" → "미노유통"' +
+      '</div>' +
+
+    '</div>' +
+
+
+    // ======================================================================
+    // ⭐ 제품
+    // ======================================================================
+
+    '<div class="edit-row">' +
+
+      '<label class="edit-label">' +
+        '🏭 제품' +
+      '</label>' +
+
+      '<select ' +
+        'id="productSelect" ' +
+        'class="edit-select"' +
+      '>' +
+
+        productOptions +
+
       '</select>' +
-      '<div class="help-text">예: "미노"만 입력해도 "미노유통" 같은 후보가 나옵니다. 여러 개면 직접 눌러주세요.</div>' +
+
+      '<div class="help-text">' +
+        '표시 순서: 푸로찜 15 KG → 20 KG → 12 KG' +
+      '</div>' +
+
     '</div>' +
 
-    '<div class="edit-row">' +
-      '<label class="edit-label">🏭 제품</label>' +
-      '<select id="productSelect" class="edit-select">' + productOptions + '</select>' +
-      '<div class="help-text">표시 순서: 푸로찜 15 KG → 20 KG → 12 KG</div>' +
-    '</div>' +
+
+    // ======================================================================
+    // ⭐ 규격
+    // ======================================================================
 
     '<div class="edit-row">' +
-      '<label class="edit-label">📏 규격</label>' +
-      '<input id="sizeInput" class="edit-input size-display" value="' + escapeAttribute(data.size || "15 KG") + '" readonly>' +
-      '<div class="help-text">제품을 바꾸면 규격도 자동으로 바뀝니다.</div>' +
+
+      '<label class="edit-label">' +
+        '📏 규격' +
+      '</label>' +
+
+      '<input ' +
+        'id="sizeInput" ' +
+        'class="edit-input size-display" ' +
+        'value="' +
+          escapeAttribute(
+            data.size ||
+            "15 KG"
+          ) +
+        '"' +
+        ' readonly>' +
+
+      '<div class="help-text">' +
+        '제품을 바꾸면 규격도 자동으로 바뀝니다.' +
+      '</div>' +
+
     '</div>' +
 
-    '<div class="edit-row">' +
-      '<label class="edit-label">📦 수량</label>' +
-      '<input id="quantityInput" class="edit-input" type="number" min="1" step="1" value="' + escapeAttribute(data.quantity || 1) + '">' +
-      '<div class="help-text">박스 수량을 숫자로 수정하세요.</div>' +
-    '</div>' +
+
+    // ======================================================================
+    // ⭐ 수량
+    // ======================================================================
 
     '<div class="edit-row">' +
-      '<label class="edit-label">📤 입출고</label>' +
-      '<select id="modeSelect" class="edit-select">' +
-        '<option value="출고"' + (data.mode === "출고" || !data.mode ? " selected" : "") + '>출고</option>' +
-        '<option value="입고"' + (data.mode === "입고" ? " selected" : "") + '>입고</option>' +
+
+      '<label class="edit-label">' +
+        '📦 수량' +
+      '</label>' +
+
+      '<input ' +
+        'id="quantityInput" ' +
+        'class="edit-input" ' +
+        'type="number" ' +
+        'min="1" ' +
+        'step="1" ' +
+        'value="' +
+          escapeAttribute(
+            data.quantity ||
+            1
+          ) +
+        '"' +
+      '>' +
+
+      '<div class="help-text">' +
+        '박스 수량을 숫자로 수정하세요.' +
+      '</div>' +
+
+    '</div>' +
+
+
+    // ======================================================================
+    // ⭐ 입출고
+    // ======================================================================
+
+    '<div class="edit-row">' +
+
+      '<label class="edit-label">' +
+        '📤 입출고' +
+      '</label>' +
+
+      '<select ' +
+        'id="modeSelect" ' +
+        'class="edit-select"' +
+      '>' +
+
+        '<option value="출고"' +
+          (
+            data.mode === "출고" ||
+            !data.mode
+              ? " selected"
+              : ""
+          ) +
+        '>' +
+
+          '출고' +
+
+        '</option>' +
+
+        '<option value="입고"' +
+          (
+            data.mode === "입고"
+              ? " selected"
+              : ""
+          ) +
+        '>' +
+
+          '입고' +
+
+        '</option>' +
+
       '</select>' +
+
     '</div>' +
+
+
+    // ======================================================================
+    // ⭐ 납품요청일
+    // ======================================================================
 
     '<div class="edit-row">' +
-      '<label class="edit-label">📅 납품요청일</label>' +
-      '<input id="deliveryDateInput" class="edit-input" type="date" value="' + escapeAttribute(data.deliveryDate || getTodayLocal()) + '">' +
+
+      '<label class="edit-label">' +
+        '📅 납품요청일' +
+      '</label>' +
+
+      '<input ' +
+        'id="deliveryDateInput" ' +
+        'class="edit-input" ' +
+        'type="date" ' +
+        'value="' +
+          escapeAttribute(
+            data.deliveryDate ||
+            getTodayLocal()
+          ) +
+        '"' +
+      '>' +
+
     '</div>' +
+
+
+    // ======================================================================
+    // ⭐ 납품형태
+    // ======================================================================
 
     '<div class="edit-row">' +
-      '<label class="edit-label">🚚 납품형태</label>' +
-      '<select id="deliveryTypeSelect" class="edit-select">' + deliveryTypeOptions + '</select>' +
-      '<div class="help-text">기본값은 "직송"입니다.</div>' +
+
+      '<label class="edit-label">' +
+        '🚚 납품형태' +
+      '</label>' +
+
+      '<select ' +
+        'id="deliveryTypeSelect" ' +
+        'class="edit-select"' +
+      '>' +
+
+        deliveryTypeOptions +
+
+      '</select>' +
+
+      '<div class="help-text">' +
+        '기본값은 "직송"입니다.' +
+      '</div>' +
+
     '</div>' +
+
+
+    // ======================================================================
+    // ⭐ 제2배송지
+    // ======================================================================
 
     '<div class="edit-row">' +
-      '<label class="edit-label">📍 제2배송지</label>' +
-      '<select id="secondDeliverySelect" class="edit-select">' + secondDeliveryOptions + '</select>' +
-      '<div class="help-text">필요할 때만 선택하세요.</div>' +
+
+      '<label class="edit-label">' +
+        '📍 제2배송지' +
+      '</label>' +
+
+      '<select ' +
+        'id="secondDeliverySelect" ' +
+        'class="edit-select"' +
+      '>' +
+
+        secondDeliveryOptions +
+
+      '</select>' +
+
+      '<div class="help-text">' +
+        '필요할 때만 선택하세요.' +
+      '</div>' +
+
     '</div>' +
 
-    '<div class="original-text"><strong>🗣 입력 원문</strong><br><br>' + escapeHtml(originalText) + '</div>' +
+
+    // ======================================================================
+    // ⭐ 원문
+    // ======================================================================
+
+    '<div class="original-text">' +
+
+      '<strong>🗣 입력 원문</strong>' +
+
+      '<br><br>' +
+
+      escapeHtml(
+        originalText
+      ) +
+
+    '</div>' +
+
+
+    // ======================================================================
+    // ⭐ 버튼
+    // ======================================================================
 
     '<div class="button-group">' +
-      '<button id="confirmButton">✅ 수정된 내용으로 Notion 등록</button>' +
-      '<button id="retryButton" style="background:#64748b;color:white;">❌ 처음으로 돌아가기</button>' +
+
+      '<button ' +
+        'id="confirmButton"' +
+        '>' +
+
+        '✅ 수정된 내용으로 Notion 등록' +
+
+      '</button>' +
+
+
+      '<button ' +
+        'id="retryButton" ' +
+        'style="background:#64748b;color:white;"' +
+        '>' +
+
+        '❌ 처음으로 돌아가기' +
+
+      '</button>' +
+
     '</div>';
 
-  result.innerHTML = html;
 
-  const productSelect = document.getElementById("productSelect");
-  const sizeInput = document.getElementById("sizeInput");
+  // ========================================================================
+  // ⭐ STEP 2 화면에 출력
+  // ========================================================================
+
+  previewResult.innerHTML =
+    html;
+
+
+  // ========================================================================
+  // ⭐ STEP 1 → STEP 2 화면 전환
+  // ========================================================================
+
+  showResultScreen();
+
+
+  // ========================================================================
+  // ⭐ 제품 변경
+  // ========================================================================
+
+  const productSelect =
+    document.getElementById(
+      "productSelect"
+    );
+
+
+  const sizeInput =
+    document.getElementById(
+      "sizeInput"
+    );
+
 
   if (productSelect) {
-    productSelect.addEventListener("change", function() {
-      const selectedProduct = productList.find(function(product) {
-        return String(product.id) === String(productSelect.value);
-      });
-      if (!selectedProduct) return;
-      const size = getProductSize(selectedProduct.name);
-      if (size) sizeInput.value = size;
-    });
+
+    productSelect.addEventListener(
+      "change",
+      function() {
+
+        const selectedProduct =
+          productList.find(
+            function(product) {
+
+              return String(
+                product.id
+              ) ===
+              String(
+                productSelect.value
+              );
+
+            }
+          );
+
+
+        if (!selectedProduct)
+          return;
+
+
+        const size =
+          getProductSize(
+            selectedProduct.name
+          );
+
+
+        if (size) {
+
+          sizeInput.value =
+            size;
+
+        }
+
+      }
+    );
+
   }
 
-  setupClientSearch(data.clientPageId || "");
 
-  document.getElementById("confirmButton").addEventListener("click", confirmNotionRegistration);
-  document.getElementById("retryButton").addEventListener("click", resetForNewRecording);
+  // ========================================================================
+  // ⭐ 거래처 검색/선택
+  // ========================================================================
+
+  setupClientSearch(
+    data.clientPageId || ""
+  );
+
+
+  // ========================================================================
+  // ⭐ 최종 등록
+  // ========================================================================
+
+  document
+    .getElementById(
+      "confirmButton"
+    )
+    .addEventListener(
+      "click",
+      confirmNotionRegistration
+    );
+
+
+  // ========================================================================
+  // ⭐ 처음으로
+  // ========================================================================
+
+  document
+    .getElementById(
+      "retryButton"
+    )
+    .addEventListener(
+      "click",
+      resetForNewRecording
+    );
+
+
+  // ========================================================================
+  // ⭐ 위쪽 ← 입력 화면
+  // ========================================================================
+
+  document
+    .getElementById(
+      "previewBackButton"
+    )
+    .addEventListener(
+      "click",
+      resetForNewRecording
+    );
+
 }
+
 
 // ============================================================================
 // 🏢 16-1. 거래처 검색 / 후보 선택
 // ============================================================================
-function setupClientSearch(initialClientId) {
-  const input = document.getElementById("clientSearchInput");
-  const candidates = document.getElementById("clientCandidates");
-  const selectedBox = document.getElementById("selectedClient");
-  const clientSelect = document.getElementById("clientSelect");
 
-  if (!input || !candidates || !clientSelect) return;
+function setupClientSearch(
+  initialClientId
+) {
 
-  function normalizeSearchText(value) {
-    return String(value || "").toLowerCase().replace(/\s+/g, "").trim();
+  const input =
+    document.getElementById(
+      "clientSearchInput"
+    );
+
+
+  const candidates =
+    document.getElementById(
+      "clientCandidates"
+    );
+
+
+  const selectedBox =
+    document.getElementById(
+      "selectedClient"
+    );
+
+
+  const clientSelect =
+    document.getElementById(
+      "clientSelect"
+    );
+
+
+  if (
+    !input ||
+    !candidates ||
+    !selectedBox ||
+    !clientSelect
+  ) {
+
+    return;
+
   }
 
-  function selectClient(client) {
-    clientSelect.value = client.id;
-    input.value = client.name;
-    selectedBox.style.display = "block";
-    selectedBox.innerHTML = "✅ 선택된 거래처: " + escapeHtml(client.name);
-    candidates.innerHTML = "";
+
+  function normalizeSearchText(
+    value
+  ) {
+
+    return String(
+      value || ""
+    )
+      .toLowerCase()
+      .replace(
+        /\s+/g,
+        ""
+      )
+      .trim();
+
   }
+
+
+  function selectClient(
+    client
+  ) {
+
+    clientSelect.value =
+      client.id;
+
+
+    input.value =
+      client.name;
+
+
+    selectedBox.style.display =
+      "block";
+
+
+    selectedBox.innerHTML =
+      "✅ 선택된 거래처: " +
+      escapeHtml(
+        client.name
+      );
+
+
+    candidates.innerHTML =
+      "";
+
+  }
+
 
   function renderCandidates() {
-    const keyword = normalizeSearchText(input.value);
+
+    const keyword =
+      normalizeSearchText(
+        input.value
+      );
+
 
     if (!keyword) {
-      candidates.innerHTML = '<div class="candidate-empty">🔍 거래처 이름 일부를 입력하면 후보가 나타납니다.</div>';
+
+      candidates.innerHTML =
+        '<div class="candidate-empty">' +
+        '🔍 거래처 이름 일부를 입력하면 후보가 나타납니다.' +
+        '</div>';
+
       return;
+
     }
 
-    const matches = clientList.filter(function(client) {
-      return normalizeSearchText(client.name).includes(keyword);
-    });
 
-    if (matches.length === 0) {
-      candidates.innerHTML = '<div class="candidate-empty">찾는 거래처가 없습니다. 다른 검색어를 입력해보세요.</div>';
+    const matches =
+      clientList.filter(
+        function(client) {
+
+          return normalizeSearchText(
+            client.name
+          ).includes(
+            keyword
+          );
+
+        }
+      );
+
+
+    if (
+      matches.length === 0
+    ) {
+
+      candidates.innerHTML =
+        '<div class="candidate-empty">' +
+        '찾는 거래처가 없습니다. 다른 검색어를 입력해보세요.' +
+        '</div>';
+
       return;
+
     }
 
-    candidates.innerHTML = matches.map(function(client) {
-      return '<button type="button" class="candidate-item" data-client-id="' + escapeAttribute(client.id) + '">🏢 ' + escapeHtml(client.name) + '</button>';
-    }).join("");
 
-    candidates.querySelectorAll(".candidate-item").forEach(function(button) {
-      button.addEventListener("click", function() {
-        const client = clientList.find(function(item) {
-          return String(item.id) === String(button.getAttribute("data-client-id"));
-        });
-        if (client) selectClient(client);
-      });
-    });
+    candidates.innerHTML =
+      matches
+        .map(
+          function(client) {
+
+            return (
+
+              '<button ' +
+              'type="button" ' +
+              'class="candidate-item" ' +
+              'data-client-id="' +
+              escapeAttribute(
+                client.id
+              ) +
+              '">' +
+
+              '🏢 ' +
+
+              escapeHtml(
+                client.name
+              ) +
+
+              '</button>'
+
+            );
+
+          }
+        )
+        .join("");
+
+
+    candidates
+      .querySelectorAll(
+        ".candidate-item"
+      )
+      .forEach(
+        function(button) {
+
+          button.addEventListener(
+            "click",
+            function() {
+
+              const client =
+                clientList.find(
+                  function(item) {
+
+                    return String(
+                      item.id
+                    ) ===
+                    String(
+                      button.getAttribute(
+                        "data-client-id"
+                      )
+                    );
+
+                  }
+                );
+
+
+              if (client) {
+
+                selectClient(
+                  client
+                );
+
+              }
+
+            }
+          );
+
+        }
+      );
+
   }
 
-  input.addEventListener("input", renderCandidates);
-  input.addEventListener("focus", function() {
-    if (input.value) renderCandidates();
-  });
+
+  // ========================================================================
+  // ⭐ 검색어 입력
+  // ========================================================================
+
+  input.addEventListener(
+    "input",
+    function() {
+
+      /*
+       * 검색어를 직접 수정하면
+       * 현재 선택된 거래처 ID는 일단 해제합니다.
+       *
+       * 사용자가 후보를 다시 선택하면
+       * 새로운 거래처가 연결됩니다.
+       */
+
+      clientSelect.value =
+        "";
+
+
+      selectedBox.style.display =
+        "none";
+
+
+      renderCandidates();
+
+    }
+  );
+
+
+  // ========================================================================
+  // ⭐ 검색창 클릭
+  // ========================================================================
+
+  input.addEventListener(
+    "focus",
+    function() {
+
+      if (input.value) {
+
+        renderCandidates();
+
+      }
+
+    }
+  );
+
+
+  // ========================================================================
+  // ⭐⭐⭐ 오른쪽 거래처 ▼ 선택
+  // ========================================================================
+
+  clientSelect.addEventListener(
+    "change",
+    function() {
+
+      const selectedId =
+        clientSelect.value;
+
+
+      if (!selectedId) {
+
+        selectedBox.style.display =
+          "none";
+
+        return;
+
+      }
+
+
+      const client =
+        clientList.find(
+          function(item) {
+
+            return String(
+              item.id
+            ) ===
+            String(
+              selectedId
+            );
+
+          }
+        );
+
+
+      if (client) {
+
+        selectClient(
+          client
+        );
+
+      }
+
+    }
+  );
+
+
+  // ========================================================================
+  // ⭐ 최초 음성 분석 거래처
+  // ========================================================================
 
   if (initialClientId) {
-    const initialClient = clientList.find(function(item) {
-      return String(item.id) === String(initialClientId);
-    });
-    if (initialClient) selectClient(initialClient);
+
+    const initialClient =
+      clientList.find(
+        function(item) {
+
+          return String(
+            item.id
+          ) ===
+          String(
+            initialClientId
+          );
+
+        }
+      );
+
+
+    if (initialClient) {
+
+      selectClient(
+        initialClient
+      );
+
+    }
+
   } else {
+
     renderCandidates();
+
   }
+
 }
+
 
 // ============================================================================
 // 📦 16-2. 기본 제품 = 푸로찜 15 KG
 // ============================================================================
+
 function getDefault15Product() {
-  return productList.find(function(product) {
-    return getProductSize(product.name) === "15 KG";
-  }) || null;
+
+  return productList.find(
+    function(product) {
+
+      return getProductSize(
+        product.name
+      ) === "15 KG";
+
+    }
+  ) || null;
+
 }
+
 
 // ============================================================================
 // 📅 16-3. 오늘 날짜
 // ============================================================================
+
 function getTodayLocal() {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return y + "-" + m + "-" + d;
+
+  const now =
+    new Date();
+
+
+  const y =
+    now.getFullYear();
+
+
+  const m =
+    String(
+      now.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const d =
+    String(
+      now.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  return (
+    y +
+    "-" +
+    m +
+    "-" +
+    d
+  );
+
 }
+
 
 // ============================================================================
 // 🔐 17. 사용자가 최종 확인 → Notion 등록
 // ============================================================================
+
 async function confirmNotionRegistration() {
+
   if (!pendingToken) {
-    result.innerHTML =
-      '<div class="error">❌ 확인 시간이 만료되었어요.<br><br>다시 입력해주세요.</div>';
+
+    previewResult.innerHTML =
+      '<div class="error">' +
+      '❌ 확인 시간이 만료되었어요.<br><br>' +
+      '다시 입력해주세요.' +
+      '</div>';
+
     return;
+
   }
 
-  if (isSending) return;
 
-  const clientSelect = document.getElementById("clientSelect");
-  const productSelect = document.getElementById("productSelect");
-  const quantityInput = document.getElementById("quantityInput");
-  const modeSelect = document.getElementById("modeSelect");
-  const deliveryDateInput = document.getElementById("deliveryDateInput");
-  const sizeInput = document.getElementById("sizeInput");
-  const deliveryTypeSelect = document.getElementById("deliveryTypeSelect");
-  const secondDeliverySelect = document.getElementById("secondDeliverySelect");
-
-  if (!clientSelect || !productSelect || !quantityInput || !modeSelect || !deliveryDateInput || !sizeInput || !deliveryTypeSelect || !secondDeliverySelect) {
-    result.innerHTML = '<div class="error">❌ 등록 화면을 읽지 못했습니다.<br><br>다시 입력해주세요.</div>';
+  if (isSending)
     return;
+
+
+  const clientSelect =
+    document.getElementById(
+      "clientSelect"
+    );
+
+
+  const productSelect =
+    document.getElementById(
+      "productSelect"
+    );
+
+
+  const quantityInput =
+    document.getElementById(
+      "quantityInput"
+    );
+
+
+  const modeSelect =
+    document.getElementById(
+      "modeSelect"
+    );
+
+
+  const deliveryDateInput =
+    document.getElementById(
+      "deliveryDateInput"
+    );
+
+
+  const sizeInput =
+    document.getElementById(
+      "sizeInput"
+    );
+
+
+  const deliveryTypeSelect =
+    document.getElementById(
+      "deliveryTypeSelect"
+    );
+
+
+  const secondDeliverySelect =
+    document.getElementById(
+      "secondDeliverySelect"
+    );
+
+
+  if (
+    !clientSelect ||
+    !productSelect ||
+    !quantityInput ||
+    !modeSelect ||
+    !deliveryDateInput ||
+    !sizeInput ||
+    !deliveryTypeSelect ||
+    !secondDeliverySelect
+  ) {
+
+    previewResult.innerHTML =
+      '<div class="error">' +
+      '❌ 등록 화면을 읽지 못했습니다.<br><br>' +
+      '다시 입력해주세요.' +
+      '</div>';
+
+    return;
+
   }
 
-  const clientPageId = clientSelect.value;
-  const productPageId = productSelect.value;
-  const quantity = Number(quantityInput.value);
-  const mode = modeSelect.value;
-  const deliveryDate = deliveryDateInput.value;
-  const size = sizeInput.value;
-  const deliveryType = deliveryTypeSelect.value;
-  const secondDeliveryLocation = secondDeliverySelect.value;
+
+  const clientPageId =
+    clientSelect.value;
+
+
+  const productPageId =
+    productSelect.value;
+
+
+  const quantity =
+    Number(
+      quantityInput.value
+    );
+
+
+  const mode =
+    modeSelect.value;
+
+
+  const deliveryDate =
+    deliveryDateInput.value;
+
+
+  const size =
+    sizeInput.value;
+
+
+  const deliveryType =
+    deliveryTypeSelect.value;
+
+
+  const secondDeliveryLocation =
+    secondDeliverySelect.value;
+
+
+  // ========================================================================
+  // ⭐ 거래처
+  // ========================================================================
 
   if (!clientPageId) {
-    alert("거래처를 선택해주세요.");
+
+    alert(
+      "거래처를 선택해주세요."
+    );
+
+    clientSelect.focus();
+
     return;
+
   }
+
+
+  // ========================================================================
+  // ⭐ 제품
+  // ========================================================================
+
   if (!productPageId) {
-    alert("제품을 선택해주세요.");
+
+    alert(
+      "제품을 선택해주세요."
+    );
+
+    productSelect.focus();
+
     return;
+
   }
-  if (!Number.isInteger(quantity) || quantity <= 0) {
-    alert("수량은 1박스 이상의 정수로 입력해주세요.");
+
+
+  // ========================================================================
+  // ⭐ 수량
+  // ========================================================================
+
+  if (
+    !Number.isInteger(
+      quantity
+    ) ||
+    quantity <= 0
+  ) {
+
+    alert(
+      "수량은 1박스 이상의 정수로 입력해주세요."
+    );
+
     quantityInput.focus();
+
     return;
+
   }
-  if (mode !== "입고" && mode !== "출고") {
-    alert("입고 또는 출고를 선택해주세요.");
+
+
+  // ========================================================================
+  // ⭐ 입출고
+  // ========================================================================
+
+  if (
+    mode !== "입고" &&
+    mode !== "출고"
+  ) {
+
+    alert(
+      "입고 또는 출고를 선택해주세요."
+    );
+
+    modeSelect.focus();
+
     return;
+
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)) {
-    alert("납품요청일을 선택해주세요.");
+
+
+  // ========================================================================
+  // ⭐ 납품요청일
+  // ========================================================================
+
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      deliveryDate
+    )
+  ) {
+
+    alert(
+      "납품요청일을 선택해주세요."
+    );
+
     deliveryDateInput.focus();
+
     return;
+
   }
-  if (size !== "12 KG" && size !== "15 KG" && size !== "20 KG") {
-    alert("제품 규격을 확인해주세요.");
+
+
+  // ========================================================================
+  // ⭐ 규격
+  // ========================================================================
+
+  if (
+    size !== "12 KG" &&
+    size !== "15 KG" &&
+    size !== "20 KG"
+  ) {
+
+    alert(
+      "제품 규격을 확인해주세요."
+    );
+
     return;
+
   }
+
+
+  // ========================================================================
+  // ⭐ 납품형태
+  // ========================================================================
+
   if (!deliveryType) {
-    alert("납품형태를 선택해주세요.");
+
+    alert(
+      "납품형태를 선택해주세요."
+    );
+
     deliveryTypeSelect.focus();
+
     return;
+
   }
 
-  isSending = true;
 
-  const confirmButton = document.getElementById("confirmButton");
-  const retryButton = document.getElementById("retryButton");
+  // ========================================================================
+  // ⭐ 등록 시작
+  // ========================================================================
+
+  isSending =
+    true;
+
+
+  const confirmButton =
+    document.getElementById(
+      "confirmButton"
+    );
+
+
+  const retryButton =
+    document.getElementById(
+      "retryButton"
+    );
+
+
   if (confirmButton) {
-    confirmButton.disabled = true;
-    confirmButton.textContent = "⏳ 노션에 등록 중...";
-  }
-  if (retryButton) retryButton.disabled = true;
 
-  result.innerHTML =
-    '<div class="listening">📝 노션에 등록하고 있어요...<br><br>잠시만 기다려주세요.</div>';
+    confirmButton.disabled =
+      true;
+
+    confirmButton.textContent =
+      "⏳ 노션에 등록 중...";
+
+  }
+
+
+  if (retryButton) {
+
+    retryButton.disabled =
+      true;
+
+  }
+
+
+  previewResult.innerHTML =
+    '<div class="listening">' +
+    '📝 노션에 등록하고 있어요...<br><br>' +
+    '잠시만 기다려주세요.' +
+    '</div>';
+
 
   try {
-    const data = await postToGAS({
-      action: "confirm",
-      token: pendingToken,
-      clientPageId: clientPageId,
-      productPageId: productPageId,
-      quantity: quantity,
-      mode: mode,
-      size: size,
-      deliveryDate: deliveryDate,
-      deliveryType: deliveryType,
-      secondDeliveryLocation: secondDeliveryLocation
-    });
 
-    if (data.status !== "success") {
-      throw new Error(data.message || "Notion 등록에 실패했습니다.");
+    const data =
+      await postToGAS({
+
+        action:
+          "confirm",
+
+        token:
+          pendingToken,
+
+        clientPageId:
+          clientPageId,
+
+        productPageId:
+          productPageId,
+
+        quantity:
+          quantity,
+
+        mode:
+          mode,
+
+        size:
+          size,
+
+        deliveryDate:
+          deliveryDate,
+
+        deliveryType:
+          deliveryType,
+
+        secondDeliveryLocation:
+          secondDeliveryLocation
+
+      });
+
+
+    if (
+      data.status !==
+      "success"
+    ) {
+
+      throw new Error(
+        data.message ||
+        "Notion 등록에 실패했습니다."
+      );
+
     }
 
-    pendingToken = null;
 
-    result.innerHTML =
-      '<div class="success">🎉 노션 등록 완료!</div><br>' +
-      '<strong>' + escapeHtml(data.clientName) + '</strong> / ' +
-      escapeHtml(data.productName) + ' / ' +
-      escapeHtml(String(data.quantity) + "박스") + ' / ' +
-      escapeHtml(data.mode) + '<br><br>' +
-      '📏 규격: ' + escapeHtml(data.size) + '<br>' +
-      '📅 납품요청일: ' + escapeHtml(data.deliveryDate) + '<br>' +
-      '🚚 납품형태: ' + escapeHtml(data.deliveryType || '') + '<br>' +
-      '📍 제2배송지: ' + escapeHtml(data.secondDeliveryLocation || '없음');
+    pendingToken =
+      null;
+
+
+    // ======================================================================
+    // ⭐ STEP 3
+    // ======================================================================
+
+    previewResult.innerHTML =
+
+      // --------------------------------------------------------------------
+      // STEP 표시
+      // --------------------------------------------------------------------
+
+      '<div class="step-indicator">' +
+
+        '<div class="step-dot">' +
+          '1' +
+        '</div>' +
+
+        '<div class="step-line"></div>' +
+
+        '<div class="step-dot">' +
+          '2' +
+        '</div>' +
+
+        '<div class="step-line"></div>' +
+
+        '<div class="step-dot active">' +
+          '3' +
+        '</div>' +
+
+      '</div>' +
+
+
+      '<div class="preview-step" ' +
+      'style="margin-bottom:8px;">' +
+        'STEP 3 · 완료' +
+      '</div>' +
+
+
+      '<div class="success">' +
+        '🎉 노션 등록 완료!' +
+      '</div>' +
+
+      '<br>' +
+
+      '<strong>' +
+        escapeHtml(
+          data.clientName
+        ) +
+      '</strong>' +
+
+      ' / ' +
+
+      escapeHtml(
+        data.productName
+      ) +
+
+      ' / ' +
+
+      escapeHtml(
+        String(
+          data.quantity
+        ) +
+        "박스"
+      ) +
+
+      ' / ' +
+
+      escapeHtml(
+        data.mode
+      ) +
+
+      '<br><br>' +
+
+      '📏 규격: ' +
+      escapeHtml(
+        data.size
+      ) +
+
+      '<br>' +
+
+      '📅 납품요청일: ' +
+      escapeHtml(
+        data.deliveryDate
+      ) +
+
+      '<br>' +
+
+      '🚚 납품형태: ' +
+      escapeHtml(
+        data.deliveryType ||
+        ''
+      ) +
+
+      '<br>' +
+
+      '📍 제2배송지: ' +
+      escapeHtml(
+        data.secondDeliveryLocation ||
+        '없음'
+      );
+
 
     if (data.notionUrl) {
-      result.innerHTML +=
-        '<br><br><a href="' + escapeAttribute(data.notionUrl) + '" target="_blank" style="font-size:16px;">🔗 노션 페이지 열기</a>';
+
+      previewResult.innerHTML +=
+
+        '<br><br>' +
+
+        '<a ' +
+        'href="' +
+        escapeAttribute(
+          data.notionUrl
+        ) +
+        '" ' +
+        'target="_blank" ' +
+        'style="font-size:16px;"' +
+        '>' +
+
+        '🔗 노션 페이지 열기' +
+
+        '</a>';
+
     }
 
-    result.innerHTML +=
-      '<div class="button-group"><button id="newRecordButton" style="background:#111827;color:white;">🎙️ 새 입출고 입력</button></div>';
 
-    document.getElementById("newRecordButton").addEventListener("click", resetForNewRecording);
+    previewResult.innerHTML +=
+
+      '<div class="button-group">' +
+
+        '<button ' +
+        'id="newRecordButton" ' +
+        'style="background:#111827;color:white;"' +
+        '>' +
+
+        '🎙️ 새 입출고 입력' +
+
+        '</button>' +
+
+      '</div>';
+
+
+    document
+      .getElementById(
+        "newRecordButton"
+      )
+      .addEventListener(
+        "click",
+        resetForNewRecording
+      );
+
 
   } catch (error) {
-    console.error(error);
-    result.innerHTML =
-      '<div class="error">❌ 노션 등록에 실패했어요.<br><br>' +
-      escapeHtml(error.message || String(error)) +
-      '</div>' +
-      '<div class="button-group"><button id="retryButton" style="background:#64748b;color:white;">🔄 다시 입력</button></div>';
 
-    document.getElementById("retryButton").addEventListener("click", resetForNewRecording);
+    console.error(
+      error
+    );
+
+
+    previewResult.innerHTML =
+
+      '<div class="error">' +
+      '❌ 노션 등록에 실패했어요.<br><br>' +
+      escapeHtml(
+        error.message ||
+        String(error)
+      ) +
+      '</div>' +
+
+      '<div class="button-group">' +
+
+      '<button id="confirmRetryButton" ' +
+      'style="background:#64748b;color:white;">' +
+      '🔄 다시 입력' +
+      '</button>' +
+
+      '</div>';
+
+
+    document
+      .getElementById(
+        "confirmRetryButton"
+      )
+      .addEventListener(
+        "click",
+        resetForNewRecording
+      );
+
+
   } finally {
-    isSending = false;
+
+    isSending =
+      false;
+
   }
+
 }
+
 
 // ============================================================================
 // 🔄 18. 새 입력 준비
 // ============================================================================
+
 function resetForNewRecording() {
-  clearTimeout(recordingTimer);
+
+  clearTimeout(
+    recordingTimer
+  );
+
 
   if (recognition) {
+
     try {
+
       recognition.stop();
+
     } catch (error) {
-      console.log(error);
+
+      console.log(
+        error
+      );
+
     }
+
   }
 
-  isRecording = false;
-  finishRequested = true;
-  recognitionRunning = false;
-  finalTranscript = "";
-  interimTranscript = "";
-  displayedTranscript = "";
-  pendingToken = null;
-  isSending = false;
-  currentInputMode = "voice";
 
-  startButton.disabled = false;
-  startButton.textContent = "🗣️ 말하기 시작";
-  finishButton.disabled = true;
-  directButton.disabled = false;
-  timer.textContent = "";
-  result.innerHTML = "버튼을 누르고 말씀해주세요.";
+  isRecording =
+    false;
+
+  finishRequested =
+    true;
+
+  recognitionRunning =
+    false;
+
+  finalTranscript =
+    "";
+
+  interimTranscript =
+    "";
+
+  displayedTranscript =
+    "";
+
+  pendingToken =
+    null;
+
+  isSending =
+    false;
+
+  currentInputMode =
+    "voice";
+
+
+  startButton.disabled =
+    false;
+
+  startButton.textContent =
+    "🗣️ 말하기 시작";
+
+  finishButton.disabled =
+    true;
+
+  directButton.disabled =
+    false;
+
+  timer.textContent =
+    "";
+
+
+  inputResult.innerHTML =
+    "버튼을 누르고 말씀해주세요.";
+
+
+  // ========================================================================
+  // ⭐ STEP 1로 돌아갑니다.
+  // ========================================================================
+
+  showInputScreen();
+
 }
+
 
 // ============================================================================
 // 🛡️ 19. HTML 안전 처리
 // ============================================================================
-function escapeHtml(value) {
-  return String(value == null ? "" : value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+
+function escapeHtml(
+  value
+) {
+
+  return String(
+    value == null
+      ? ""
+      : value
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
 }
 
-function escapeAttribute(value) {
-  return escapeHtml(value);
+
+function escapeAttribute(
+  value
+) {
+
+  return escapeHtml(
+    value
+  );
+
 }
+
 
 // ============================================================================
 // ⭐ 20. 페이지 처음 열렸을 때
 // ============================================================================
+
 loadInitialData();
 
+
 </script>
+
 </body>
 </html>
