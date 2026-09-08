@@ -71,17 +71,6 @@
 
       overflow-x: hidden;
 
-      /*
-       * ⭐⭐⭐⭐⭐
-       * 호나우두 이미지를 웹페이지 전체 배경으로 사용합니다.
-       *
-       * GitHub Pages 저장소 안에
-       *
-       * ronaldo-fenomeno.png
-       *
-       * 파일이 반드시 있어야 합니다.
-       */
-
       background:
         #05070b
         url("ronaldo-fenomeno.png")
@@ -293,13 +282,6 @@
 
       border-radius: 0 0 30px 30px;
 
-      /*
-       * ⭐ HERO 자체도 같은 이미지를 사용
-       *
-       * 배경이 안 보이는 환경에서도
-       * 상단에는 한 번 더 이미지를 표시합니다.
-       */
-
       background:
         #05070b
         url("ronaldo-fenomeno.png")
@@ -312,13 +294,6 @@
 
     }
 
-
-    /*
-     * ⭐ 이미지가 img 태그에 의존하지 않도록
-     * background-image 방식으로 변경했습니다.
-     *
-     * 기존 <img>보다 GitHub Pages에서 관리하기 편합니다.
-     */
 
     .hero-image {
 
@@ -365,11 +340,6 @@
 
     }
 
-
-    /* ========================================================================
-       ⭐ RONALDO TYPOGRAPHY
-       - 기존 텍스트/위치는 유지하고 폰트와 금빛 질감만 고급스럽게 강화
-       ======================================================================== */
 
     .hero-kicker {
 
@@ -623,12 +593,25 @@
     button::before {
 
       content: "";
+
       position: absolute;
+
       left: 0;
+
       right: 0;
+
       top: 0;
+
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,241,174,.7), transparent);
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(255,241,174,.7),
+          transparent
+        );
+
       pointer-events: none;
 
     }
@@ -652,13 +635,17 @@
 
     #startButton {
 
-      background: linear-gradient(135deg, rgba(5,7,11,.97), rgba(35,30,17,.88));
+      background:
+        linear-gradient(
+          135deg,
+          rgba(5,7,11,.97),
+          rgba(35,30,17,.88)
+        );
 
       color: #fff;
 
-      
-
-      border-color: rgba(239,198,70,.96);
+      border-color:
+        rgba(239,198,70,.96);
 
       box-shadow:
         0 5px 16px rgba(0,0,0,.48),
@@ -670,13 +657,17 @@
 
     #finishButton {
 
-      background: linear-gradient(135deg, rgba(10,8,8,.97), rgba(48,25,18,.90));
+      background:
+        linear-gradient(
+          135deg,
+          rgba(10,8,8,.97),
+          rgba(48,25,18,.90)
+        );
 
       color: #fff;
 
-      
-
-      border-color: rgba(239,198,70,.96);
+      border-color:
+        rgba(239,198,70,.96);
 
       box-shadow:
         0 5px 16px rgba(0,0,0,.48),
@@ -688,13 +679,17 @@
 
     #directButton {
 
-      background: linear-gradient(135deg, rgba(5,7,11,.97), rgba(42,35,17,.90));
+      background:
+        linear-gradient(
+          135deg,
+          rgba(5,7,11,.97),
+          rgba(42,35,17,.90)
+        );
 
       color: #fff;
 
-      
-
-      border-color: rgba(239,198,70,.96);
+      border-color:
+        rgba(239,198,70,.96);
 
       box-shadow:
         0 5px 16px rgba(0,0,0,.48),
@@ -972,24 +967,36 @@
     }
 
 
-    /* 입력 버튼 영역만 HERO와 자연스럽게 이어지는 프리미엄 스타일 */
     #inputScreen > .card:first-of-type {
+
       background: transparent;
+
       box-shadow: none;
+
       backdrop-filter: none;
+
       -webkit-backdrop-filter: none;
+
       padding: 0 8px 2px;
+
     }
+
 
     #inputScreen > .card:first-of-type button {
-      background-color: rgba(5,7,11,.76);
+
+      background-color:
+        rgba(5,7,11,.76);
+
     }
 
+
     #inputScreen > .card:first-of-type button:active {
+
       box-shadow:
         0 2px 8px rgba(0,0,0,.55),
         0 0 20px rgba(226,185,52,.38),
         inset 0 1px 0 rgba(255,245,190,.25);
+
     }
 
 
@@ -1249,11 +1256,13 @@
 
       }
 
+
       .kicker-crown {
 
         font-size: 15px;
 
       }
+
 
       .kicker-fenomeno {
 
@@ -1318,18 +1327,7 @@
   <div id="inputScreen" class="screen">
 
 
-    <!-- ================================================================
-         HERO
-         ================================================================ -->
-
     <div class="hero">
-
-      <!--
-        ⭐ 이미지 파일은 HERO의 background-image로 사용합니다.
-
-        파일명:
-        ronaldo-fenomeno.png
-      -->
 
       <div class="hero-overlay"></div>
 
@@ -1337,9 +1335,19 @@
       <div class="hero-content">
 
         <div class="hero-kicker">
-          <span class="kicker-name">RONALDO NAZÁRIO</span>
-          <span class="kicker-crown">♛</span>
-          <span class="kicker-fenomeno">EL FENÔMENO</span>
+
+          <span class="kicker-name">
+            RONALDO NAZÁRIO
+          </span>
+
+          <span class="kicker-crown">
+            ♛
+          </span>
+
+          <span class="kicker-fenomeno">
+            EL FENÔMENO
+          </span>
+
         </div>
 
 
@@ -1362,10 +1370,6 @@
     </div>
 
 
-    <!-- ================================================================
-         STEP 표시
-         ================================================================ -->
-
     <div class="step-indicator">
 
       <div class="step-dot active">
@@ -1386,10 +1390,6 @@
 
     </div>
 
-
-    <!-- ================================================================
-         입력 카드
-         ================================================================ -->
 
     <div class="card">
 
@@ -1419,10 +1419,6 @@
     </div>
 
 
-    <!-- ================================================================
-         ⭐ 상태 메시지
-         ================================================================ -->
-
     <div
       id="statusCard"
       class="card"
@@ -1437,10 +1433,6 @@
 
   </div>
 
-
-  <!-- ======================================================================
-       ⭐⭐⭐ STEP 2 / STEP 3 : 확인 / 완료 화면
-       ====================================================================== -->
 
   <div
     id="resultCard"
@@ -2473,10 +2465,6 @@ async function loadInitialData() {
         : [];
 
 
-    // ======================================================================
-    // ⭐⭐⭐ 거래처 가나다순
-    // ======================================================================
-
     clientList.sort(
       function(a, b) {
 
@@ -2492,10 +2480,6 @@ async function loadInitialData() {
       }
     );
 
-
-    // ======================================================================
-    // ⭐ 제품은 15 → 20 → 12 순서
-    // ======================================================================
 
     productList =
       sortProductsByRequestedOrder(
@@ -2669,6 +2653,223 @@ function getProductSize(
 
 
 // ============================================================================
+// 🚚 15-3. 납품형태 정규화
+// ============================================================================
+//
+// ⭐⭐⭐ 이번 수정의 핵심 ⭐⭐⭐
+//
+// GAS가 음성을 분석한 결과가
+//
+//   "택배"
+//   "택배 발송"
+//   "택배배송"
+//   "택배 배송"
+//   "택배로"
+//   "택배로 발송"
+//
+// 처럼 조금씩 달라도 실제 Select에 있는
+// "택배" 계열 옵션을 찾아 선택합니다.
+//
+// 반대로 택배 의미가 없으면 기본값은 "직송".
+//
+// ============================================================================
+
+function normalizeDeliveryType(
+  value,
+  options
+) {
+
+  const list =
+    Array.isArray(options)
+      ? options
+      : [];
+
+
+  const raw =
+    cleanText(value);
+
+
+  // --------------------------------------------------------------------------
+  // ① 우선 완전 일치
+  // --------------------------------------------------------------------------
+
+  const exact =
+    list.find(
+      function(option) {
+
+        return cleanText(option) === raw;
+
+      }
+    );
+
+
+  if (exact) {
+
+    return exact;
+
+  }
+
+
+  // --------------------------------------------------------------------------
+  // ② 택배 관련 표현인지 확인
+  // --------------------------------------------------------------------------
+
+  const compact =
+    raw
+      .toLowerCase()
+      .replace(/\s+/g, "");
+
+
+  const isParcel =
+    compact.includes("택배") ||
+    compact.includes("택배발송") ||
+    compact.includes("택배송");
+
+
+  if (isParcel) {
+
+    // ------------------------------------------------------------------------
+    // 실제 Select 옵션 중 "택배"가 들어간 항목 찾기
+    // ------------------------------------------------------------------------
+
+    const parcelOption =
+      list.find(
+        function(option) {
+
+          const optionCompact =
+            cleanText(option)
+              .toLowerCase()
+              .replace(/\s+/g, "");
+
+
+          return optionCompact.includes(
+            "택배"
+          );
+
+        }
+      );
+
+
+    if (parcelOption) {
+
+      return parcelOption;
+
+    }
+
+  }
+
+
+  // --------------------------------------------------------------------------
+  // ③ "직송" 계열 옵션 찾기
+  // --------------------------------------------------------------------------
+
+  const directOption =
+    list.find(
+      function(option) {
+
+        const optionCompact =
+          cleanText(option)
+            .toLowerCase()
+            .replace(/\s+/g, "");
+
+
+        return optionCompact === "직송";
+
+      }
+    );
+
+
+  // --------------------------------------------------------------------------
+  // ④ 직송 옵션이 실제 목록에 있으면 그것을 반환
+  // --------------------------------------------------------------------------
+
+  if (directOption) {
+
+    return directOption;
+
+  }
+
+
+  // --------------------------------------------------------------------------
+  // ⑤ 목록 자체가 없거나 직송 옵션을 못 찾은 경우
+  // --------------------------------------------------------------------------
+
+  return "직송";
+
+}
+
+
+// ============================================================================
+// 🚚 15-4. 납품형태 Select 옵션 생성
+// ============================================================================
+//
+// normalizeDeliveryType()에서 결정된 값과
+// 실제 Select option을 비교해서 selected 처리.
+//
+// ============================================================================
+
+function buildDeliveryTypeOptions(
+  selectedDeliveryType
+) {
+
+  const selected =
+    normalizeDeliveryType(
+      selectedDeliveryType,
+      deliveryTypeList
+    );
+
+
+  // 혹시 GAS initialData가 아직 오지 않았을 경우에도
+  // 최소한 기본값 직송은 표시되도록 안전 처리합니다.
+
+  const options =
+    Array.isArray(deliveryTypeList) &&
+    deliveryTypeList.length > 0
+      ? deliveryTypeList
+      : ["직송"];
+
+
+  return options
+    .map(
+      function(option) {
+
+        const isSelected =
+          cleanText(option) ===
+          cleanText(selected);
+
+
+        return (
+
+          '<option value="' +
+            escapeAttribute(
+              option
+            ) +
+          '"' +
+
+          (
+            isSelected
+              ? " selected"
+              : ""
+          ) +
+
+          '>' +
+
+          escapeHtml(
+            option
+          ) +
+
+          '</option>'
+
+        );
+
+      }
+    )
+    .join("");
+
+}
+
+
+// ============================================================================
 // 👀 16. 미리보기 / 확인 화면
 // ============================================================================
 
@@ -2744,38 +2945,42 @@ function showPreview(data) {
   );
 
 
-  let deliveryTypeOptions =
-    "";
+  // ========================================================================
+  // 🚚 납품형태
+  //
+  // ⭐⭐⭐ 기존의 단순 문자열 완전일치 방식을 제거하고
+  // normalizeDeliveryType()을 통해 안전하게 선택합니다.
+  // ========================================================================
+
+  const normalizedDeliveryType =
+    normalizeDeliveryType(
+      data.deliveryType,
+      deliveryTypeList
+    );
 
 
-  deliveryTypeList.forEach(
-    function(option) {
-
-      const selected =
-        String(option) ===
-        String(data.deliveryType || "직송")
-          ? " selected"
-          : "";
-
-
-      deliveryTypeOptions +=
-
-        '<option value="' +
-        escapeAttribute(
-          option
-        ) +
-        '"' +
-        selected +
-        '>' +
-
-        escapeHtml(
-          option
-        ) +
-
-        '</option>';
-
-    }
+  console.log(
+    "GAS 납품형태 원본:",
+    data.deliveryType
   );
+
+
+  console.log(
+    "화면 적용 납품형태:",
+    normalizedDeliveryType
+  );
+
+
+  console.log(
+    "납품형태 옵션:",
+    deliveryTypeList
+  );
+
+
+  const deliveryTypeOptions =
+    buildDeliveryTypeOptions(
+      normalizedDeliveryType
+    );
 
 
   let secondDeliveryOptions =
@@ -3810,6 +4015,14 @@ async function confirmNotionRegistration() {
   const size =
     sizeInput.value;
 
+
+  // ========================================================================
+  // 🚚 납품형태
+  //
+  // ⭐ 여기서는 사용자가 확인 화면에서 선택한 실제 Select 값을 그대로 사용.
+  // ⭐ 음성 분석 때 정규화된 값이 이미 들어가 있기 때문에
+  // ⭐ 사용자가 직접 바꾸면 바꾼 값 그대로 GAS로 전송됩니다.
+  // ========================================================================
 
   const deliveryType =
     deliveryTypeSelect.value;
