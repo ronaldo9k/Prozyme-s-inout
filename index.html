@@ -585,31 +585,33 @@
 
 
     /* ========================================================================
-       ⭐⭐⭐ 메인 버튼
-       ⭐ 폭만 약 3/4로 축소
-       ⭐ 세로 중앙 정렬을 명시적으로 고정
+       ⭐⭐⭐⭐⭐ 요청사항 1 + 2
+       ⭐ 메인 버튼 폭 정확히 90px
+       ⭐ 글자 크기 2배 = 32px
+       ⭐ 아이콘/글자 모두 버튼 정중앙
        ======================================================================== */
 
     #inputScreen > .card:first-of-type button {
 
-      /* 기존 190px → 약 3/4인 145px */
-      width: 145px;
+      width: 90px;
 
-      height: 56px;
+      height: 90px;
 
-      min-height: 56px;
+      min-height: 90px;
 
       margin: 9px auto 0;
 
-      padding: 7px 10px 7px 8px;
+      padding: 7px 4px;
 
       display: flex;
+
+      flex-direction: column;
 
       align-items: center;
 
       justify-content: center;
 
-      gap: 6px;
+      gap: 4px;
 
       border-radius: 30px;
 
@@ -626,13 +628,12 @@
 
       color: #fff;
 
-      font-size: 16px;
+      font-size: 32px;
 
       font-weight: 900;
 
       letter-spacing: -.2px;
 
-      /* ⭐ 버튼 글자의 위/아래 정확한 중앙 */
       line-height: 1;
 
       text-align: center;
@@ -663,11 +664,11 @@
 
     .main-button-icon {
 
-      flex: 0 0 40px;
+      flex: 0 0 30px;
 
-      width: 40px;
+      width: 30px;
 
-      height: 40px;
+      height: 30px;
 
       border-radius: 50%;
 
@@ -708,9 +709,9 @@
 
     .main-button-icon svg {
 
-      width: 21px;
+      width: 17px;
 
-      height: 21px;
+      height: 17px;
 
       display: block;
 
@@ -738,9 +739,9 @@
 
     #finishButton .main-button-icon svg {
 
-      width: 17px;
+      width: 14px;
 
-      height: 17px;
+      height: 14px;
 
       fill: currentColor;
 
@@ -755,8 +756,9 @@
 
 
     /* ========================================================================
-       ⭐ 버튼 글자
-       ⭐ 위/아래 기준 정중앙
+       ⭐⭐⭐⭐⭐ 버튼 글자
+       ⭐ 기존 16px → 32px
+       ⭐ 버튼 정중앙
        ======================================================================== */
 
     .main-button-label {
@@ -771,13 +773,12 @@
 
       color: #ffffff;
 
-      font-size: 16px;
+      font-size: 32px;
 
       font-weight: 900;
 
-      letter-spacing: -.3px;
+      letter-spacing: -.8px;
 
-      /* ⭐ 글자 자체의 세로 중심 고정 */
       line-height: 1;
 
       display: block;
@@ -795,7 +796,7 @@
 
       position: absolute;
 
-      right: 8px;
+      right: 4px;
 
       top: 50%;
 
@@ -803,7 +804,7 @@
 
       color: #e9bb3e;
 
-      font-size: 30px;
+      font-size: 25px;
 
       line-height: 1;
 
@@ -828,9 +829,9 @@
 
       position: absolute;
 
-      left: 20px;
+      left: 12px;
 
-      right: 20px;
+      right: 12px;
 
       top: 0;
 
@@ -920,34 +921,48 @@
 
 
     /* ========================================================================
-       ⭐ 비활성 버튼
-       ⭐ 처음에는 말하기 완료가 확실히 흐리게 보임
-       ⭐ 말하기 시작 후 disabled=false가 되면 자동으로 원래 밝기
+       ⭐⭐⭐⭐⭐ 요청사항 3
+       ⭐ 처음에는 말하기 완료가 회색/어두운 비활성 상태
+       ⭐ 말하기 시작 후 disabled=false가 되면 자동으로 원래 금색 상태
        ======================================================================== */
 
     #inputScreen > .card:first-of-type button:disabled {
 
-      opacity: .38;
+      opacity: .42;
 
       cursor: not-allowed;
 
-      filter: saturate(.55) brightness(.78);
+      filter:
+        grayscale(.72)
+        saturate(.35)
+        brightness(.68);
+
+      border-color: rgba(150,150,150,.55);
+
+      background:
+
+        linear-gradient(
+          135deg,
+          rgba(45,45,45,.92),
+          rgba(70,70,70,.88),
+          rgba(35,35,35,.94)
+        );
 
       box-shadow:
 
-        0 3px 8px rgba(0,0,0,.48),
+        0 3px 8px rgba(0,0,0,.58),
 
-        0 0 4px rgba(226,181,48,.08),
+        0 0 3px rgba(180,180,180,.08),
 
-        inset 0 1px 0 rgba(255,245,190,.08),
+        inset 0 1px 0 rgba(255,255,255,.08),
 
-        inset 0 -1px 0 rgba(0,0,0,.90);
+        inset 0 -2px 5px rgba(0,0,0,.75);
 
     }
 
 
     /* ========================================================================
-       ⭐⭐⭐ statusCard
+       ⭐ statusCard
        ⭐ 버튼 바로 아래에 존재
        ⭐ 스크롤하면 화면 상단에 붙어서 계속 보임
        ⭐ 음성 인식 중인 내용이 계속 보이도록 유지
@@ -965,7 +980,6 @@
 
       margin-top: 8px;
 
-      /* ⭐ 상단 고정 시 배경이 확실히 보이도록 */
       background:
         rgba(255,255,255,.97);
 
@@ -1484,15 +1498,15 @@
       }
 
 
-      /* ⭐ 요청사항: 메인 버튼 폭 약 3/4 */
+      /* ⭐ 요청사항: 메인 버튼 폭 정확히 90px */
 
       #inputScreen > .card:first-of-type button {
 
-        width: 145px;
+        width: 90px;
 
-        height: 56px;
+        height: 90px;
 
-        min-height: 56px;
+        min-height: 90px;
 
       }
 
@@ -1568,33 +1582,33 @@
       }
 
 
-      /* ⭐ 요청사항: 메인 버튼 폭 약 3/4 */
+      /* ⭐ 요청사항: 메인 버튼 폭 정확히 90px */
 
       #inputScreen > .card:first-of-type button {
 
-        width: 145px;
+        width: 90px;
 
-        height: 56px;
+        height: 90px;
 
-        min-height: 56px;
+        min-height: 90px;
 
       }
 
 
       .main-button-icon {
 
-        flex-basis: 39px;
+        flex-basis: 30px;
 
-        width: 39px;
+        width: 30px;
 
-        height: 39px;
+        height: 30px;
 
       }
 
 
       .main-button-label {
 
-        font-size: 16px;
+        font-size: 32px;
 
       }
 
