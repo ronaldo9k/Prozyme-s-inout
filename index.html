@@ -368,15 +368,29 @@
 
     .hero-kicker {
 
-      font-size: 11px;
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
 
-      letter-spacing: 3px;
+      font-size: 19px;
+
+      line-height: 1.1;
+
+      letter-spacing: 3.5px;
 
       font-weight: 900;
 
       color: #f5d978;
 
-      margin-bottom: 7px;
+      margin-bottom: 10px;
+
+      text-transform: uppercase;
+
+      text-shadow:
+        0 2px 0 rgba(90,60,0,.85),
+        0 4px 0 rgba(55,38,0,.55),
+        0 6px 14px rgba(0,0,0,.95),
+        0 0 20px rgba(201,162,39,.42);
+
+      -webkit-text-stroke: .45px rgba(255,235,155,.7);
 
     }
 
@@ -391,18 +405,40 @@
 
       margin: 0;
 
+      letter-spacing: 1.5px;
+
+      color: #ffffff;
+
+      text-shadow:
+        0 2px 8px rgba(0,0,0,.8),
+        0 3px 16px rgba(0,0,0,.65);
+
     }
 
 
     .hero-sub {
 
-      margin-top: 8px;
+      margin-top: 10px;
 
-      font-size: 13px;
+      font-size: 14px;
 
-      font-weight: 600;
+      line-height: 1.45;
 
-      opacity: .94;
+      font-weight: 950;
+
+      letter-spacing: 2.2px;
+
+      color: #fff7d1;
+
+      opacity: 1;
+
+      text-shadow:
+        0 1px 0 rgba(255,255,255,.35),
+        0 2px 0 rgba(94,67,10,.7),
+        0 4px 12px rgba(0,0,0,.9),
+        0 0 16px rgba(201,162,39,.25);
+
+      -webkit-text-stroke: .25px rgba(255,226,130,.35);
 
     }
 
@@ -1145,7 +1181,7 @@
 
         <div class="hero-sub">
 
-          빠르게 말하고 · 정확하게 확인하고 · 바로 등록하세요
+          김경우 ♡ 박희수 ♡ 김준모 ♡ 김준석
 
         </div>
 
@@ -1255,7 +1291,7 @@
 // ============================================================================
 
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbxAmrJlcYFsF1KG1Rn6at-8Ff4SG0cWT2jA-dFOqbHJDBPsKhxjA_IbW5uxN8ttkwc/exec";
+  "https://script.google.com/macros/s/AKfycbyVxf8KLf7WF5Z0CYYvW8w-T5SqYR848WciSmqSQz7Uu_OKIGxO5SqXRWXOSMrqogYG/exec";
 
 
 // ============================================================================
@@ -2544,7 +2580,8 @@ function showPreview(data) {
     function(option) {
 
       const selected =
-        option === "직송"
+        String(option) ===
+        String(data.deliveryType || "직송")
           ? " selected"
           : "";
 
