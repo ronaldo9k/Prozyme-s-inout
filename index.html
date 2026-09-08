@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -585,35 +584,40 @@
 
 
     /* ========================================================================
-       ⭐⭐⭐⭐⭐ 요청사항 1 + 2
-       ⭐ 메인 버튼 폭 정확히 90px
-       ⭐ 글자 크기 2배 = 32px
-       ⭐ 아이콘/글자 모두 버튼 정중앙
+       ⭐⭐⭐ 최종 메인 버튼
+       ⭐ 원형 아이콘 제거
+       ⭐ SVG 제거
+       ⭐ 버튼 폭을 글자 때문에 절대 늘어나지 않도록 고정
+       ⭐ 예전의 단순한 아이콘 + 글자 형태로 복원
        ======================================================================== */
 
     #inputScreen > .card:first-of-type button {
 
-      width: 90px;
+      width: 170px;
 
-      height: 90px;
+      min-width: 170px;
 
-      min-height: 90px;
+      max-width: 170px;
+
+      height: 56px;
+
+      min-height: 56px;
 
       margin: 9px auto 0;
 
-      padding: 7px 4px;
+      padding: 0 12px;
 
       display: flex;
 
-      flex-direction: column;
+      flex-direction: row;
 
       align-items: center;
 
       justify-content: center;
 
-      gap: 4px;
+      gap: 7px;
 
-      border-radius: 30px;
+      border-radius: 16px;
 
       border: 1.5px solid #e5b83c;
 
@@ -628,15 +632,17 @@
 
       color: #fff;
 
-      font-size: 32px;
+      font-size: 17px;
 
       font-weight: 900;
 
-      letter-spacing: -.2px;
+      letter-spacing: 0;
 
       line-height: 1;
 
       text-align: center;
+
+      white-space: nowrap;
 
       text-shadow:
         0 2px 5px rgba(0,0,0,.95);
@@ -659,41 +665,31 @@
 
 
     /* ========================================================================
-       ⭐ 금색 원형 아이콘
+       ⭐ 최종 버튼 아이콘
+       ⭐ 기존 커다란 원형 아이콘 대신 작은 단일 아이콘 사용
        ======================================================================== */
 
     .main-button-icon {
 
-      flex: 0 0 30px;
+      flex: 0 0 auto;
 
-      width: 30px;
+      width: auto;
 
-      height: 30px;
+      height: auto;
 
-      border-radius: 50%;
+      border: 0;
 
-      display: flex;
+      border-radius: 0;
+
+      display: inline-flex;
 
       align-items: center;
 
       justify-content: center;
 
-      border: 1.5px solid #dcae31;
+      background: transparent;
 
-      background:
-
-        radial-gradient(
-          circle,
-          rgba(45,36,14,.98) 0%,
-          rgba(18,16,10,.98) 68%,
-          rgba(7,8,8,1) 100%
-        );
-
-      box-shadow:
-
-        0 0 7px rgba(226,181,47,.28),
-
-        inset 0 1px 2px rgba(255,240,160,.18);
+      box-shadow: none;
 
       color: #efbd3d;
 
@@ -704,61 +700,18 @@
 
 
     /* ========================================================================
-       ⭐ SVG 아이콘
+       ⭐ SVG는 사용하지 않음
        ======================================================================== */
 
     .main-button-icon svg {
 
-      width: 17px;
-
-      height: 17px;
-
-      display: block;
-
-      fill: none;
-
-      stroke: currentColor;
-
-      stroke-width: 2.2;
-
-      stroke-linecap: round;
-
-      stroke-linejoin: round;
-
-      filter:
-        drop-shadow(
-          0 0 4px rgba(239,190,58,.35)
-        );
+      display: none;
 
     }
 
 
     /* ========================================================================
-       ⭐ 정지 아이콘은 이미지처럼 꽉 찬 금색 사각형
-       ======================================================================== */
-
-    #finishButton .main-button-icon svg {
-
-      width: 14px;
-
-      height: 14px;
-
-      fill: currentColor;
-
-      stroke: none;
-
-      filter:
-        drop-shadow(
-          0 0 4px rgba(239,190,58,.4)
-        );
-
-    }
-
-
-    /* ========================================================================
-       ⭐⭐⭐⭐⭐ 버튼 글자
-       ⭐ 기존 16px → 32px
-       ⭐ 버튼 정중앙
+       ⭐ 버튼 글자
        ======================================================================== */
 
     .main-button-label {
@@ -773,48 +726,27 @@
 
       color: #ffffff;
 
-      font-size: 32px;
+      font-size: 17px;
 
       font-weight: 900;
 
-      letter-spacing: -.8px;
+      letter-spacing: 0;
 
       line-height: 1;
 
-      display: block;
+      display: inline-block;
 
     }
 
 
     /* ========================================================================
-       ⭐ 오른쪽 금색 화살표
+       ⭐ 오른쪽 화살표 제거
+       ⭐ 화살표가 버튼 폭을 잡는 문제까지 완전히 차단
        ======================================================================== */
 
     #inputScreen > .card:first-of-type button::after {
 
-      content: "›";
-
-      position: absolute;
-
-      right: 4px;
-
-      top: 50%;
-
-      transform: translateY(-54%);
-
-      color: #e9bb3e;
-
-      font-size: 25px;
-
-      line-height: 1;
-
-      font-weight: 300;
-
-      text-shadow:
-
-        0 0 8px rgba(239,193,60,.65),
-
-        0 2px 4px rgba(0,0,0,.95);
+      content: none;
 
     }
 
@@ -921,9 +853,7 @@
 
 
     /* ========================================================================
-       ⭐⭐⭐⭐⭐ 요청사항 3
-       ⭐ 처음에는 말하기 완료가 회색/어두운 비활성 상태
-       ⭐ 말하기 시작 후 disabled=false가 되면 자동으로 원래 금색 상태
+       ⭐⭐⭐ 비활성 완료 버튼
        ======================================================================== */
 
     #inputScreen > .card:first-of-type button:disabled {
@@ -963,9 +893,6 @@
 
     /* ========================================================================
        ⭐ statusCard
-       ⭐ 버튼 바로 아래에 존재
-       ⭐ 스크롤하면 화면 상단에 붙어서 계속 보임
-       ⭐ 음성 인식 중인 내용이 계속 보이도록 유지
        ======================================================================== */
 
     #statusCard {
@@ -1498,15 +1425,19 @@
       }
 
 
-      /* ⭐ 요청사항: 메인 버튼 폭 정확히 90px */
+      /* ⭐ 메인 버튼 폭 고정 */
 
       #inputScreen > .card:first-of-type button {
 
-        width: 90px;
+        width: 170px;
 
-        height: 90px;
+        min-width: 170px;
 
-        min-height: 90px;
+        max-width: 170px;
+
+        height: 56px;
+
+        min-height: 56px;
 
       }
 
@@ -1582,33 +1513,26 @@
       }
 
 
-      /* ⭐ 요청사항: 메인 버튼 폭 정확히 90px */
+      /* ⭐ 모바일에서도 버튼 폭 고정 */
 
       #inputScreen > .card:first-of-type button {
 
-        width: 90px;
+        width: 170px;
 
-        height: 90px;
+        min-width: 170px;
 
-        min-height: 90px;
+        max-width: 170px;
 
-      }
+        height: 56px;
 
-
-      .main-button-icon {
-
-        flex-basis: 30px;
-
-        width: 30px;
-
-        height: 30px;
+        min-height: 56px;
 
       }
 
 
       .main-button-label {
 
-        font-size: 32px;
+        font-size: 17px;
 
       }
 
@@ -1700,45 +1624,16 @@
 
 
       <!-- ==================================================================
-           ⭐⭐⭐ 이미지의 금색 원형 아이콘 버튼
+           ⭐ 최종 메인 버튼
+           ⭐ 아이콘은 기존의 단순한 형태로 복원
            ================================================================== -->
 
 
       <button id="startButton">
 
         <span class="main-button-icon">
-
-          <!-- 금색 마이크 -->
-
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-
-            <rect
-              x="8"
-              y="3"
-              width="8"
-              height="12"
-              rx="4"
-            ></rect>
-
-            <path
-              d="M5 11a7 7 0 0 0 14 0"
-            ></path>
-
-            <path
-              d="M12 18v3"
-            ></path>
-
-            <path
-              d="M8.5 21h7"
-            ></path>
-
-          </svg>
-
+          🎙️
         </span>
-
 
         <span class="main-button-label">
           말하기 시작
@@ -1753,26 +1648,8 @@
       >
 
         <span class="main-button-icon">
-
-          <!-- 금색 정지 사각형 -->
-
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-
-            <rect
-              x="6"
-              y="6"
-              width="12"
-              height="12"
-              rx="1.5"
-            ></rect>
-
-          </svg>
-
+          ⏹️
         </span>
-
 
         <span class="main-button-label">
           말하기 완료
@@ -1784,30 +1661,8 @@
       <button id="directButton">
 
         <span class="main-button-icon">
-
-          <!-- 금색 연필 -->
-
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-
-            <path
-              d="M4 20l4.3-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5.3 16z"
-            ></path>
-
-            <path
-              d="M13.8 6.2l4 4"
-            ></path>
-
-            <path
-              d="M4 20l1-4"
-            ></path>
-
-          </svg>
-
+          ✏️
         </span>
-
 
         <span class="main-button-label">
           직접 입력
@@ -3090,25 +2945,6 @@ function getProductSize(
 // ============================================================================
 // 🚚 15-3. 납품형태 정규화
 // ============================================================================
-//
-// ⭐⭐⭐⭐⭐ 중요 ⭐⭐⭐⭐⭐
-//
-// 이 부분은 기존 정상화 코드를 그대로 유지합니다.
-//
-// GAS가 다음처럼 반환해도:
-//
-//   "택배"
-//   "택배 발송"
-//   "택배배송"
-//   "택배 배송"
-//   "택배로"
-//   "택배로 발송"
-//
-// 실제 Select에 존재하는 "택배" 계열 옵션을 찾아 선택합니다.
-//
-// 택배 의미가 없으면 실제 Select의 "직송"을 기본값으로 사용합니다.
-//
-// ============================================================================
 
 function normalizeDeliveryType(
   value,
@@ -3124,10 +2960,6 @@ function normalizeDeliveryType(
   const raw =
     cleanText(value);
 
-
-  // --------------------------------------------------------------------------
-  // ① 완전 일치
-  // --------------------------------------------------------------------------
 
   const exact =
     list.find(
@@ -3145,10 +2977,6 @@ function normalizeDeliveryType(
 
   }
 
-
-  // --------------------------------------------------------------------------
-  // ② 택배 관련 표현
-  // --------------------------------------------------------------------------
 
   const compact =
     raw
@@ -3191,10 +3019,6 @@ function normalizeDeliveryType(
   }
 
 
-  // --------------------------------------------------------------------------
-  // ③ 직송 찾기
-  // --------------------------------------------------------------------------
-
   const directOption =
     list.find(
       function(option) {
@@ -3211,20 +3035,12 @@ function normalizeDeliveryType(
     );
 
 
-  // --------------------------------------------------------------------------
-  // ④ 직송이 있으면 직송
-  // --------------------------------------------------------------------------
-
   if (directOption) {
 
     return directOption;
 
   }
 
-
-  // --------------------------------------------------------------------------
-  // ⑤ 안전 기본값
-  // --------------------------------------------------------------------------
 
   return "직송";
 
@@ -3368,10 +3184,6 @@ function showPreview(data) {
     }
   );
 
-
-  // ========================================================================
-  // 🚚 납품형태
-  // ========================================================================
 
   const normalizedDeliveryType =
     normalizeDeliveryType(
@@ -4437,10 +4249,6 @@ async function confirmNotionRegistration() {
     sizeInput.value;
 
 
-  // ========================================================================
-  // 🚚 납품형태
-  // ========================================================================
-
   const deliveryType =
     deliveryTypeSelect.value;
 
@@ -4981,4 +4789,3 @@ loadInitialData();
 
 </body>
 </html>
-```
