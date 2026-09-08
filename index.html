@@ -518,7 +518,7 @@
 
 
     /* ========================================================================
-       ⭐ 버튼
+       ⭐ 버튼 기본
        ======================================================================== */
 
     button {
@@ -564,51 +564,110 @@
     }
 
 
-    button::after {
+    /* ========================================================================
+       ⭐ 이미지 스타일 버튼
+       ======================================================================== */
 
-      content: "›";
+    #inputScreen > .card:first-of-type {
 
-      position: absolute;
+      background: transparent;
 
-      right: 18px;
+      box-shadow: none;
 
-      top: 50%;
+      backdrop-filter: none;
 
-      transform: translateY(-54%);
+      -webkit-backdrop-filter: none;
 
-      color: #f3ca55;
-
-      font-size: 30px;
-
-      line-height: 1;
-
-      font-weight: 400;
-
-      text-shadow:
-        0 0 10px rgba(240,194,57,.5);
+      padding: 0 8px 2px;
 
     }
 
 
-    button::before {
+    #inputScreen > .card:first-of-type button {
+
+      /* 이미지와 같은 중앙형 버튼 */
+
+      width: 216px;
+
+      min-height: 56px;
+
+      margin: 9px auto 0;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: flex-start;
+
+      gap: 14px;
+
+      padding: 8px 17px 8px 10px;
+
+      border-radius: 30px;
+
+      border: 1.5px solid #e5b93f;
+
+      background:
+
+        linear-gradient(
+          135deg,
+          rgba(7,8,9,.97) 0%,
+          rgba(27,23,12,.96) 55%,
+          rgba(8,9,9,.98) 100%
+        );
+
+      color: #ffffff;
+
+      font-size: 16px;
+
+      font-weight: 900;
+
+      letter-spacing: -.2px;
+
+      text-shadow:
+        0 2px 5px rgba(0,0,0,.9);
+
+      box-shadow:
+
+        0 5px 12px rgba(0,0,0,.55),
+
+        0 0 9px rgba(221,176,47,.25),
+
+        inset 0 1px 0 rgba(255,245,190,.15),
+
+        inset 0 -1px 0 rgba(0,0,0,.7);
+
+      backdrop-filter: blur(8px);
+
+      -webkit-backdrop-filter: blur(8px);
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 버튼 위쪽의 금빛 하이라이트
+       ======================================================================== */
+
+    #inputScreen > .card:first-of-type button::before {
 
       content: "";
 
       position: absolute;
 
-      left: 0;
+      left: 18px;
 
-      right: 0;
+      right: 18px;
 
       top: 0;
 
       height: 1px;
 
       background:
+
         linear-gradient(
           90deg,
           transparent,
-          rgba(255,241,174,.7),
+          rgba(255,239,160,.75),
           transparent
         );
 
@@ -617,40 +676,127 @@
     }
 
 
-    button:active {
+    /* ========================================================================
+       ⭐ 버튼 오른쪽 화살표
+       ======================================================================== */
 
-      transform: scale(.985);
+    #inputScreen > .card:first-of-type button::after {
+
+      content: "›";
+
+      position: absolute;
+
+      right: 15px;
+
+      top: 50%;
+
+      transform: translateY(-54%);
+
+      color: #e9bb3e;
+
+      font-size: 30px;
+
+      line-height: 1;
+
+      font-weight: 300;
+
+      text-shadow:
+
+        0 0 7px rgba(239,193,60,.65),
+
+        0 2px 4px rgba(0,0,0,.9);
 
     }
 
 
-    button:disabled {
+    /* ========================================================================
+       ⭐ 버튼 아이콘 원
+       ======================================================================== */
 
-      opacity: .48;
+    .main-button-icon {
 
-      cursor: not-allowed;
+      flex: 0 0 40px;
+
+      width: 40px;
+
+      height: 40px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      border: 1.5px solid #dcae2f;
+
+      background:
+
+        radial-gradient(
+          circle,
+          rgba(56,45,18,.88) 0%,
+          rgba(15,14,10,.98) 72%
+        );
+
+      color: #f0c347;
+
+      font-size: 21px;
+
+      line-height: 1;
+
+      box-shadow:
+
+        0 0 7px rgba(229,182,48,.24),
+
+        inset 0 1px 2px rgba(255,239,160,.18);
+
+      text-shadow:
+
+        0 0 7px rgba(240,194,65,.7);
 
     }
 
+
+    /* ========================================================================
+       ⭐ 버튼 글자
+       ======================================================================== */
+
+    .main-button-label {
+
+      flex: 1;
+
+      min-width: 0;
+
+      text-align: left;
+
+      white-space: nowrap;
+
+      color: #ffffff;
+
+      font-size: 16px;
+
+      font-weight: 900;
+
+      letter-spacing: -.3px;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 각 버튼 색감
+       ======================================================================== */
 
     #startButton {
 
       background:
+
         linear-gradient(
           135deg,
-          rgba(5,7,11,.97),
-          rgba(35,30,17,.88)
+          rgba(5,7,11,.98),
+          rgba(42,34,15,.94),
+          rgba(9,9,8,.98)
         );
-
-      color: #fff;
-
-      border-color:
-        rgba(239,198,70,.96);
-
-      box-shadow:
-        0 5px 16px rgba(0,0,0,.48),
-        0 0 14px rgba(230,190,55,.24),
-        inset 0 1px 0 rgba(255,245,190,.18);
 
     }
 
@@ -658,21 +804,13 @@
     #finishButton {
 
       background:
+
         linear-gradient(
           135deg,
-          rgba(10,8,8,.97),
-          rgba(48,25,18,.90)
+          rgba(7,7,8,.98),
+          rgba(43,28,18,.95),
+          rgba(8,8,8,.98)
         );
-
-      color: #fff;
-
-      border-color:
-        rgba(239,198,70,.96);
-
-      box-shadow:
-        0 5px 16px rgba(0,0,0,.48),
-        0 0 14px rgba(230,190,55,.24),
-        inset 0 1px 0 rgba(255,245,190,.18);
 
     }
 
@@ -680,24 +818,65 @@
     #directButton {
 
       background:
+
         linear-gradient(
           135deg,
-          rgba(5,7,11,.97),
-          rgba(42,35,17,.90)
+          rgba(5,7,11,.98),
+          rgba(43,36,17,.95),
+          rgba(8,9,9,.98)
         );
-
-      color: #fff;
-
-      border-color:
-        rgba(239,198,70,.96);
-
-      box-shadow:
-        0 5px 16px rgba(0,0,0,.48),
-        0 0 14px rgba(230,190,55,.24),
-        inset 0 1px 0 rgba(255,245,190,.18);
 
     }
 
+
+    /* ========================================================================
+       ⭐ 버튼 눌림
+       ======================================================================== */
+
+    #inputScreen > .card:first-of-type button:active {
+
+      transform:
+        translateY(1px)
+        scale(.985);
+
+      box-shadow:
+
+        0 2px 7px rgba(0,0,0,.65),
+
+        0 0 18px rgba(226,185,52,.42),
+
+        inset 0 2px 4px rgba(0,0,0,.45),
+
+        inset 0 1px 0 rgba(255,245,190,.2);
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 비활성 버튼
+       ======================================================================== */
+
+    #inputScreen > .card:first-of-type button:disabled {
+
+      opacity: .50;
+
+      cursor: not-allowed;
+
+      filter: saturate(.7);
+
+    }
+
+
+    button:disabled {
+
+      cursor: not-allowed;
+
+    }
+
+
+    /* ========================================================================
+       ⭐ 나머지 버튼
+       ======================================================================== */
 
     #confirmButton {
 
@@ -967,39 +1146,6 @@
     }
 
 
-    #inputScreen > .card:first-of-type {
-
-      background: transparent;
-
-      box-shadow: none;
-
-      backdrop-filter: none;
-
-      -webkit-backdrop-filter: none;
-
-      padding: 0 8px 2px;
-
-    }
-
-
-    #inputScreen > .card:first-of-type button {
-
-      background-color:
-        rgba(5,7,11,.76);
-
-    }
-
-
-    #inputScreen > .card:first-of-type button:active {
-
-      box-shadow:
-        0 2px 8px rgba(0,0,0,.55),
-        0 0 20px rgba(226,185,52,.38),
-        inset 0 1px 0 rgba(255,245,190,.25);
-
-    }
-
-
     /* ========================================================================
        ⭐ 거래처 검색 + 오른쪽 ▼ 선택
        ======================================================================== */
@@ -1229,6 +1375,15 @@
 
       }
 
+
+      #inputScreen > .card:first-of-type button {
+
+        width: 216px;
+
+        min-height: 56px;
+
+      }
+
     }
 
 
@@ -1285,13 +1440,6 @@
       }
 
 
-      button {
-
-        font-size: 18px;
-
-      }
-
-
       .client-choice-row {
 
         grid-template-columns:
@@ -1304,6 +1452,33 @@
       .edit-select {
 
         font-size: 15px;
+
+      }
+
+
+      #inputScreen > .card:first-of-type button {
+
+        width: 216px;
+
+        min-height: 56px;
+
+      }
+
+
+      .main-button-icon {
+
+        flex-basis: 39px;
+
+        width: 39px;
+
+        height: 39px;
+
+      }
+
+
+      .main-button-label {
+
+        font-size: 16px;
 
       }
 
@@ -1393,8 +1568,22 @@
 
     <div class="card">
 
+
+      <!-- ==================================================================
+           ⭐ 이미지와 동일한 3개 메인 버튼
+           ================================================================== -->
+
+
       <button id="startButton">
-        🗣️ 말하기 시작
+
+        <span class="main-button-icon">
+          🎙️
+        </span>
+
+        <span class="main-button-label">
+          말하기 시작
+        </span>
+
       </button>
 
 
@@ -1402,12 +1591,28 @@
         id="finishButton"
         disabled
       >
-        🛑 말하기 완료
+
+        <span class="main-button-icon">
+          ■
+        </span>
+
+        <span class="main-button-label">
+          말하기 완료
+        </span>
+
       </button>
 
 
       <button id="directButton">
-        ✏️ 직접 입력하기
+
+        <span class="main-button-icon">
+          ✎
+        </span>
+
+        <span class="main-button-label">
+          직접 입력
+        </span>
+
       </button>
 
 
@@ -1543,6 +1748,27 @@ const directButton =
 
 const timer =
   document.getElementById("timer");
+
+
+// ============================================================================
+// ⭐ 메인 버튼 글자 상태 변경
+// ============================================================================
+
+function setStartButtonLabel(
+  label
+) {
+
+  startButton.innerHTML =
+
+    '<span class="main-button-icon">' +
+      '🎙️' +
+    '</span>' +
+
+    '<span class="main-button-label">' +
+      escapeHtml(label) +
+    '</span>';
+
+}
 
 
 // ============================================================================
@@ -1793,8 +2019,11 @@ startButton.addEventListener(
     directButton.disabled =
       true;
 
-    startButton.textContent =
-      "🎤 듣는 중";
+
+    setStartButtonLabel(
+      "듣는 중"
+    );
+
 
     timer.textContent =
       "⏱️ 최대 30초";
@@ -1904,8 +2133,11 @@ startButton.addEventListener(
           startButton.disabled =
             false;
 
-          startButton.textContent =
-            "🎤 이어서 말하기";
+
+          setStartButtonLabel(
+            "이어서 말하기"
+          );
+
 
           finishButton.disabled =
             false;
@@ -1959,8 +2191,11 @@ startButton.addEventListener(
           startButton.disabled =
             false;
 
-          startButton.textContent =
-            "🗣️ 말하기 시작";
+
+          setStartButtonLabel(
+            "말하기 시작"
+          );
+
 
           finishButton.disabled =
             true;
@@ -2213,8 +2448,11 @@ function finishRecording() {
   startButton.disabled =
     false;
 
-  startButton.textContent =
-    "🗣️ 말하기 시작";
+
+  setStartButtonLabel(
+    "말하기 시작"
+  );
+
 
   finishButton.disabled =
     true;
@@ -2656,7 +2894,7 @@ function getProductSize(
 // 🚚 15-3. 납품형태 정규화
 // ============================================================================
 //
-// ⭐⭐⭐ 이번 수정의 핵심 ⭐⭐⭐
+// ⭐⭐⭐ 기존 개선 기능 그대로 유지 ⭐⭐⭐
 //
 // GAS가 음성을 분석한 결과가
 //
@@ -2728,10 +2966,6 @@ function normalizeDeliveryType(
 
   if (isParcel) {
 
-    // ------------------------------------------------------------------------
-    // 실제 Select 옵션 중 "택배"가 들어간 항목 찾기
-    // ------------------------------------------------------------------------
-
     const parcelOption =
       list.find(
         function(option) {
@@ -2802,11 +3036,6 @@ function normalizeDeliveryType(
 // ============================================================================
 // 🚚 15-4. 납품형태 Select 옵션 생성
 // ============================================================================
-//
-// normalizeDeliveryType()에서 결정된 값과
-// 실제 Select option을 비교해서 selected 처리.
-//
-// ============================================================================
 
 function buildDeliveryTypeOptions(
   selectedDeliveryType
@@ -2818,9 +3047,6 @@ function buildDeliveryTypeOptions(
       deliveryTypeList
     );
 
-
-  // 혹시 GAS initialData가 아직 오지 않았을 경우에도
-  // 최소한 기본값 직송은 표시되도록 안전 처리합니다.
 
   const options =
     Array.isArray(deliveryTypeList) &&
@@ -2947,9 +3173,6 @@ function showPreview(data) {
 
   // ========================================================================
   // 🚚 납품형태
-  //
-  // ⭐⭐⭐ 기존의 단순 문자열 완전일치 방식을 제거하고
-  // normalizeDeliveryType()을 통해 안전하게 선택합니다.
   // ========================================================================
 
   const normalizedDeliveryType =
@@ -4019,9 +4242,7 @@ async function confirmNotionRegistration() {
   // ========================================================================
   // 🚚 납품형태
   //
-  // ⭐ 여기서는 사용자가 확인 화면에서 선택한 실제 Select 값을 그대로 사용.
-  // ⭐ 음성 분석 때 정규화된 값이 이미 들어가 있기 때문에
-  // ⭐ 사용자가 직접 바꾸면 바꾼 값 그대로 GAS로 전송됩니다.
+  // ⭐ 확인 화면에서 선택된 실제 Select 값을 그대로 사용
   // ========================================================================
 
   const deliveryType =
@@ -4482,8 +4703,11 @@ function resetForNewRecording() {
   startButton.disabled =
     false;
 
-  startButton.textContent =
-    "🗣️ 말하기 시작";
+
+  setStartButtonLabel(
+    "말하기 시작"
+  );
+
 
   finishButton.disabled =
     true;
