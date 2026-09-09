@@ -2389,74 +2389,292 @@ async function startDirectInput() {
     true;
 
 
-  inputResult.innerHTML =
-    '<div class="listening">' +
-    '✏️ 직접 입력 화면을 준비하고 있어요...<br><br>' +
-    '잠시만 기다려주세요.' +
-    '</div>';
+  /*
+   * ⭐⭐⭐ 핵심 개선
+   *
+   * 기존에는 여기서 GAS의 directPreview 응답이 올 때까지
+   * "잠시만 기다려주세요" 화면만 보여주고 있었습니다.
+   *
+   * 이제는 현재 브라우저에 이미 받아온 거래처/제품 목록을 이용하여
+   * STEP 2 화면을 먼저 즉시 보여줍니다.
+   *
+   * 그 뒤 기존 directPreview 요청은 백그라운드에서 그대로 실행합니다.
+   *
+   * ⚠️ Code.gs의 directPreview는 삭제하지 않습니다.
+   * ⚠️ 기존 Notion 등록용 pendingToken도 그대로 사용합니다.
+   */
+
+
+  const defaultProduct =
+    getDefault15Product();
+
+
+  const localPreview = {
+
+    status:
+      "preview",
+
+    token:
+      null,
+
+    clientPageId:
+      "",
+
+    productPageId:
+      defaultProduct
+        ? defaultProduct.id
+        : "",
+
+    productName:
+      defaultProduct
+        ? defaultProduct.name
+        : "",
+
+    size:
+      "15 KG",
+
+    quantity:
+      1,
+
+    mode:
+      "출고",
+
+    deliveryDate:
+      getTodayLocal(),
+
+    deliveryType:
+      "직송",
+
+    secondDeliveryLocation:
+      "",
+
+    text:
+      "직접 입력"
+
+  };
+
+
+  /*
+   * ⭐ STEP 2를 서버 응답보다 먼저 표시
+   */
+
+  showPreview(
+    localPreview
+  );
+
+
+  /*
+   * ⭐ 실제 Notion 등록에 필요한 토큰을 받을 때까지
+   * 확인 버튼만 잠시 비활성화
+   */
+
+  const confirmButton =
+    document.getElementById(
+      "confirmButton"
+    );
+
+
+  if (confirmButton) {
+
+    confirmButton.disabled =
+      true;
+
+    confirmButton.textContent =
+      "⏳ 등록 준비 중...";
+
+  }
 
 
   try {
 
+    /*
+     * ⭐ 기존 GAS directPreview 호출은 그대로 유지
+     *
+     * 다만 이제 화면을 이미 보여준 뒤
+     * 백그라운드에서 실행됩니다.
+     */
+
     const data =
       await postToGAS({
-        action: "directPreview"
+        action:
+          "directPreview"
       });
 
 
     if (
-      data.status !== "preview"
+      data.status !==
+      "preview"
     ) {
 
       throw new Error(
         data.message ||
-        "직접 입력 화면을 준비하지 못했습니다."
+        "직접 입력 등록 준비에 실패했습니다."
       );
 
     }
 
 
+    /*
+     * ⭐ 기존과 동일하게
+     * GAS에서 받은 pendingToken을 저장
+     */
+
     pendingToken =
       data.token;
 
 
-    showPreview(data);
+    /*
+     * ⭐ 혹시 초기 데이터 로딩보다
+     * directPreview가 먼저 끝난 경우를 대비하여
+     * 실제 GAS 결과를 화면의 제품 선택값에 반영
+     *
+     * 정상적인 경우에는 이미 15 KG 제품이 표시되어 있으므로
+     * 화면상 변화가 없습니다.
+     */
+
+    const productSelect =
+      document.getElementById(
+        "productSelect"
+      );
+
+
+    const sizeInput =
+      document.getElementById(
+        "sizeInput"
+      );
+
+
+    if (
+      productSelect &&
+      data.productPageId
+    ) {
+
+      productSelect.value =
+        data.productPageId;
+
+    }
+
+
+    if (
+      sizeInput &&
+      data.size
+    ) {
+
+      sizeInput.value =
+        data.size;
+
+    }
+
+
+    /*
+     * ⭐ 이제 실제 등록이 가능하므로
+     * 확인 버튼 활성화
+     */
+
+    const readyConfirmButton =
+      document.getElementById(
+        "confirmButton"
+      );
+
+
+    if (readyConfirmButton) {
+
+      readyConfirmButton.disabled =
+        false;
+
+      readyConfirmButton.textContent =
+        "✅ 수정된 내용으로 Notion 등록";
+
+    }
 
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
-    inputResult.innerHTML =
+    /*
+     * ⭐ STEP 2 화면은 그대로 유지
+     *
+     * 기존처럼 전체 화면을 오류 화면으로 덮어버리지 않고,
+     * 사용자가 이미 보고 있는 직접 입력 화면을 유지합니다.
+     *
+     * 단, 실제 Notion 등록 토큰이 없으므로
+     * 등록 버튼은 계속 비활성화합니다.
+     */
 
-      '<div class="error">' +
-      '❌ 직접 입력 화면을 열지 못했어요.<br><br>' +
-      escapeHtml(
-        error.message ||
-        String(error)
-      ) +
-      '</div>' +
-
-      '<div class="button-group">' +
-
-      '<button id="directRetryButton" ' +
-      'style="background:#64748b;color:white;">' +
-      '🔄 처음 화면으로' +
-      '</button>' +
-
-      '</div>';
-
-
-    document
-      .getElementById(
-        "directRetryButton"
-      )
-      .addEventListener(
-        "click",
-        resetForNewRecording
+    const failedConfirmButton =
+      document.getElementById(
+        "confirmButton"
       );
 
+
+    if (failedConfirmButton) {
+
+      failedConfirmButton.disabled =
+        true;
+
+      failedConfirmButton.textContent =
+        "⚠️ 등록 준비 실패";
+
+    }
+
+
+    const existingError =
+      document.getElementById(
+        "directPreviewError"
+      );
+
+
+    if (!existingError) {
+
+      const errorBox =
+        document.createElement(
+          "div"
+        );
+
+
+      errorBox.id =
+        "directPreviewError";
+
+
+      errorBox.className =
+        "error";
+
+
+      errorBox.style.marginTop =
+        "10px";
+
+
+      errorBox.innerHTML =
+        '❌ 직접 입력 등록 준비에 실패했어요.<br><br>' +
+        escapeHtml(
+          error.message ||
+          String(error)
+        );
+
+
+      if (
+        failedConfirmButton &&
+        failedConfirmButton.parentElement
+      ) {
+
+        failedConfirmButton.parentElement.insertBefore(
+          errorBox,
+          failedConfirmButton
+        );
+
+      } else {
+
+        previewResult.appendChild(
+          errorBox
+        );
+
+      }
+
+    }
 
   } finally {
 
