@@ -1031,6 +1031,26 @@
     }
 
 
+    /* ========================================================================
+       ⭐⭐⭐ STEP 2 상단 왼쪽 버튼 묶음
+       *
+       * 기존 "← 입력 화면" 버튼 옆에
+       * 새 "🔄 새로 고침" 버튼을 붙이기 위한 최소 추가 영역입니다.
+       * ======================================================================== */
+
+    .preview-actions {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      min-width: 0;
+
+    }
+
+
     .preview-back {
 
       width: auto;
@@ -1052,6 +1072,75 @@
     }
 
 
+    /* ========================================================================
+       ⭐⭐⭐ STEP 2 데이터 새로 고침 버튼
+       *
+       * 브라우저 전체 새로고침이 아닙니다.
+       * 거래처 / 제품 / 납품형태 / 제2배송지 목록만
+       * GAS에서 다시 받아옵니다.
+       * ======================================================================== */
+
+    .preview-refresh {
+
+      width: auto;
+
+      min-width: 0;
+
+      margin: 0;
+
+      padding: 8px 11px;
+
+      border-radius: 10px;
+
+      border: 1px solid #d7dbe1;
+
+      background: #ffffff;
+
+      color: #475569;
+
+      font-size: 13px;
+
+      font-weight: 800;
+
+      line-height: 1.2;
+
+      text-shadow: none;
+
+      box-shadow:
+        0 2px 6px rgba(0,0,0,.08);
+
+      white-space: nowrap;
+
+    }
+
+
+    .preview-refresh:hover {
+
+      background: #f8fafc;
+
+    }
+
+
+    .preview-refresh:active {
+
+      transform:
+        translateY(1px);
+
+      box-shadow:
+        0 1px 3px rgba(0,0,0,.10);
+
+    }
+
+
+    .preview-refresh:disabled {
+
+      opacity: .58;
+
+      cursor: wait;
+
+    }
+
+
     .preview-step {
 
       font-size: 12px;
@@ -1059,6 +1148,8 @@
       font-weight: 900;
 
       color: #64748b;
+
+      white-space: nowrap;
 
     }
 
@@ -1437,6 +1528,33 @@
         height: 56px;
 
         min-height: 56px;
+
+      }
+
+
+      /* ⭐ STEP 2 상단 버튼도 모바일에서 자연스럽게 표시 */
+
+      .preview-actions {
+
+        gap: 5px;
+
+      }
+
+
+      .preview-back {
+
+        padding: 8px 10px;
+
+        font-size: 12px;
+
+      }
+
+
+      .preview-refresh {
+
+        padding: 8px 9px;
+
+        font-size: 12px;
 
       }
 
@@ -3167,6 +3285,256 @@ async function loadInitialData() {
 
 
 // ============================================================================
+// 🔄 15-0. STEP 2 초기 데이터 새로 고침
+// ⭐⭐⭐ 이번 요청으로 새로 추가된 기능
+//
+// 브라우저 전체 새로고침(F5)을 하지 않고,
+// 현재 STEP 2에서 필요한 거래처 / 제품 / 납품형태 / 제2배송지
+// 목록만 GAS의 initialData를 통해 다시 받아옵니다.
+//
+// ⭐ 중요한 점
+// 사용자가 이미 수정해 놓은 값은 그대로 보존합니다.
+//
+// 보존 대상:
+// ① 거래처
+// ② 제품
+// ③ 수량
+// ④ 입출고
+// ⑤ 납품요청일
+// ⑥ 납품형태
+// ⑦ 제2배송지
+//
+// 또한 pendingToken 상태도 보존하여
+// 직접 입력 / 음성 입력 등록 흐름에 영향을 주지 않습니다.
+// ============================================================================
+
+async function refreshInitialDataForPreview() {
+
+  const refreshButton =
+    document.getElementById(
+      "previewRefreshButton"
+    );
+
+
+  /*
+   * ⭐ 현재 STEP 2에 입력되어 있는 값을 먼저 보관합니다.
+   *
+   * 새로고침 과정에서 showPreview()가 다시 실행되더라도
+   * 사용자가 방금 수정한 값이 사라지지 않도록 합니다.
+   */
+
+  const currentValues = {
+
+    clientPageId:
+      document.getElementById(
+        "clientSelect"
+      )?.value || "",
+
+    productPageId:
+      document.getElementById(
+        "productSelect"
+      )?.value || "",
+
+    quantity:
+      document.getElementById(
+        "quantityInput"
+      )?.value || "1",
+
+    mode:
+      document.getElementById(
+        "modeSelect"
+      )?.value || "출고",
+
+    deliveryDate:
+      document.getElementById(
+        "deliveryDateInput"
+      )?.value ||
+      getTodayLocal(),
+
+    deliveryType:
+      document.getElementById(
+        "deliveryTypeSelect"
+      )?.value ||
+      "직송",
+
+    secondDeliveryLocation:
+      document.getElementById(
+        "secondDeliverySelect"
+      )?.value || ""
+
+  };
+
+
+  /*
+   * ⭐ 현재 등록 준비 상태도 기억합니다.
+   *
+   * 직접 입력을 누른 직후 아직 directPreview가 끝나지 않았다면
+   * pendingToken이 없을 수 있습니다.
+   *
+   * 이 상태를 새로고침 후에도 그대로 유지합니다.
+   */
+
+  const hadPendingToken =
+    !!pendingToken;
+
+
+  /*
+   * ⭐ 버튼을 잠시 비활성화하여
+   * 사용자가 여러 번 연속으로 누르는 것을 방지합니다.
+   */
+
+  if (refreshButton) {
+
+    refreshButton.disabled =
+      true;
+
+    refreshButton.textContent =
+      "⏳ 새로 고침 중...";
+
+  }
+
+
+  try {
+
+    /*
+     * ⭐ 기존에 정상적으로 사용 중인
+     * loadInitialData()를 그대로 재사용합니다.
+     *
+     * 별도의 GAS 함수나 별도의 데이터 구조를 만들지 않습니다.
+     */
+
+    await loadInitialData();
+
+
+    /*
+     * ⭐ loadInitialData()가 끝나면
+     * 최신 거래처 / 제품 / Select 목록이 준비되어 있습니다.
+     *
+     * 그 최신 목록을 사용하면서
+     * 방금 전 STEP 2에서 사용자가 선택했던 값은 다시 적용합니다.
+     */
+
+    if (
+      currentPreviewData
+    ) {
+
+      const restoredPreview = {
+
+        ...currentPreviewData,
+
+        clientPageId:
+          currentValues.clientPageId,
+
+        productPageId:
+          currentValues.productPageId,
+
+        quantity:
+          currentValues.quantity,
+
+        mode:
+          currentValues.mode,
+
+        deliveryDate:
+          currentValues.deliveryDate,
+
+        deliveryType:
+          currentValues.deliveryType,
+
+        secondDeliveryLocation:
+          currentValues.secondDeliveryLocation
+
+      };
+
+
+      /*
+       * ⭐ 최신 목록 + 기존 입력값을 합쳐서
+       * STEP 2를 다시 그립니다.
+       */
+
+      showPreview(
+        restoredPreview
+      );
+
+
+      /*
+       * ⭐ pendingToken이 아직 없었다면
+       * 확인 버튼도 다시 비활성화합니다.
+       *
+       * 반대로 pendingToken이 있었다면
+       * 정상적으로 등록 버튼을 사용할 수 있습니다.
+       */
+
+      if (!hadPendingToken) {
+
+        const confirmButton =
+          document.getElementById(
+            "confirmButton"
+          );
+
+
+        if (confirmButton) {
+
+          confirmButton.disabled =
+            true;
+
+          confirmButton.textContent =
+            "⏳ 등록 준비 중...";
+
+        }
+
+      }
+
+    }
+
+
+    console.log(
+      "🔄 STEP 2 초기 데이터 새로 고침 완료"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "STEP 2 초기 데이터 새로 고침 오류:",
+      error
+    );
+
+
+    /*
+     * ⭐ 새로고침 실패해도
+     * 현재 화면과 기존 입력값은 최대한 그대로 유지합니다.
+     */
+
+    alert(
+      "거래처 / 제품 목록 새로 고침에 실패했습니다.\n\n" +
+      (
+        error.message ||
+        String(error)
+      )
+    );
+
+  } finally {
+
+    /*
+     * ⭐ 새로고침이 끝나면 버튼을 원래 상태로 복구합니다.
+     */
+
+    if (refreshButton) {
+
+      refreshButton.disabled =
+        false;
+
+      refreshButton.textContent =
+        "🔄 새로 고침";
+
+    }
+
+  }
+
+}
+
+
+// ============================================================================
 // 📋 15-1. 제품 표시 순서
 // ============================================================================
 
@@ -3640,14 +4008,33 @@ function showPreview(data) {
 
     '<div class="preview-top">' +
 
-      '<button ' +
-      'type="button" ' +
-      'id="previewBackButton" ' +
-      'class="preview-back">' +
+      /*
+       * ⭐⭐⭐ 기존 "← 입력 화면" 바로 옆에
+       * 새 "🔄 새로 고침" 버튼을 추가했습니다.
+       */
 
-        '← 입력 화면' +
+      '<div class="preview-actions">' +
 
-      '</button>' +
+        '<button ' +
+        'type="button" ' +
+        'id="previewBackButton" ' +
+        'class="preview-back">' +
+
+          '← 입력 화면' +
+
+        '</button>' +
+
+        '<button ' +
+        'type="button" ' +
+        'id="previewRefreshButton" ' +
+        'class="preview-refresh">' +
+
+          '🔄 새로 고침' +
+
+        '</button>' +
+
+      '</div>' +
+
 
       '<div class="preview-step">' +
         'STEP 2 · 확인' +
@@ -4094,6 +4481,24 @@ function showPreview(data) {
     .addEventListener(
       "click",
       resetForNewRecording
+    );
+
+
+  /*
+   * ⭐⭐⭐ 새로 추가된 버튼 이벤트
+   *
+   * STEP 2의 "🔄 새로 고침"을 누르면
+   * 브라우저 전체를 새로고침하지 않고
+   * 초기 거래처 / 제품 / Select 목록만 다시 불러옵니다.
+   */
+
+  document
+    .getElementById(
+      "previewRefreshButton"
+    )
+    .addEventListener(
+      "click",
+      refreshInitialDataForPreview
     );
 
 }
