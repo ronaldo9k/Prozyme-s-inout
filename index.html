@@ -1114,6 +1114,72 @@
     }
 
 
+    /* ========================================================================
+       ⭐⭐⭐ STEP 2 푸로찜 총판 Home 열기 버튼
+       *
+       * "🔄 새로 고침" 옆에만 추가되는 작은 버튼입니다.
+       * 기존 버튼 및 전체 button 기본 스타일은 건드리지 않습니다.
+       * ======================================================================== */
+
+    .preview-notion-home {
+
+      width: auto;
+
+      min-width: 0;
+
+      margin: 0;
+
+      padding: 8px 11px;
+
+      border-radius: 10px;
+
+      border: 1px solid #d7dbe1;
+
+      background: #ffffff;
+
+      color: #475569;
+
+      font-size: 13px;
+
+      font-weight: 800;
+
+      line-height: 1.2;
+
+      text-shadow: none;
+
+      box-shadow:
+        0 2px 6px rgba(0,0,0,.08);
+
+      white-space: nowrap;
+
+    }
+
+
+    .preview-notion-home:hover {
+
+      background: #f8fafc;
+
+    }
+
+
+    .preview-notion-home:active {
+
+      transform:
+        translateY(1px);
+
+      box-shadow:
+        0 1px 3px rgba(0,0,0,.10);
+
+    }
+
+
+    .preview-notion-home:focus {
+
+      outline: none;
+
+    }
+
+
     .preview-refresh:hover {
 
       background: #f8fafc;
@@ -1558,6 +1624,15 @@
 
       }
 
+
+      .preview-notion-home {
+
+        padding: 8px 9px;
+
+        font-size: 12px;
+
+      }
+
     }
 
 
@@ -1836,6 +1911,16 @@
 
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbwAzVaYx0UJGE84-U4AffY01B8gxJQZpWtihyx2M8lW3eDr9dXy6IbFv7BwxLYlmO1h/exec";
+
+
+// ============================================================================
+// 🏠 푸로찜 총판 Home - 고정 Notion 페이지
+// ⭐ STEP 2의 "📖 노션 열기" 버튼에서만 사용합니다.
+// ⭐ 새 Notion 페이지를 만들거나 현재 등록 페이지로 이동하지 않습니다.
+// ============================================================================
+
+const NOTION_HOME_URL =
+  "https://app.notion.com/p/Home-2cbaf68cc87780f78e5fca7ea015cb96";
 
 
 // ============================================================================
@@ -4033,6 +4118,22 @@ function showPreview(data) {
 
         '</button>' +
 
+
+        /*
+         * ⭐⭐⭐ STEP 2의 "📖 노션 열기" 버튼
+         *
+         * 현재 등록 중인 페이지가 아니라
+         * 항상 고정된 "푸로찜 총판 Home"으로 이동합니다.
+         */
+        '<button ' +
+        'type="button" ' +
+        'id="previewNotionHomeButton" ' +
+        'class="preview-notion-home">' +
+
+          '📖 노션 열기' +
+
+        '</button>' +
+
       '</div>' +
 
 
@@ -4499,6 +4600,32 @@ function showPreview(data) {
     .addEventListener(
       "click",
       refreshInitialDataForPreview
+    );
+
+
+  /*
+   * ⭐⭐⭐ "📖 노션 열기" 버튼 이벤트
+   *
+   * STEP 2에서 누르면 고정된
+   * "푸로찜 총판 Home" Notion 페이지를 새 탭으로 엽니다.
+   *
+   * ⭐ 기존 Notion 등록 기능과는 완전히 별개입니다.
+   */
+
+  document
+    .getElementById(
+      "previewNotionHomeButton"
+    )
+    .addEventListener(
+      "click",
+      function() {
+
+        window.open(
+          NOTION_HOME_URL,
+          "_blank"
+        );
+
+      }
     );
 
 }
