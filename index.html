@@ -1114,72 +1114,6 @@
     }
 
 
-    /* ========================================================================
-       ⭐⭐⭐ STEP 2 푸로찜 총판 Home 열기 버튼
-       *
-       * "🔄 새로 고침" 옆에만 추가되는 작은 버튼입니다.
-       * 기존 버튼 및 전체 button 기본 스타일은 건드리지 않습니다.
-       * ======================================================================== */
-
-    .preview-notion-home {
-
-      width: auto;
-
-      min-width: 0;
-
-      margin: 0;
-
-      padding: 8px 11px;
-
-      border-radius: 10px;
-
-      border: 1px solid #d7dbe1;
-
-      background: #ffffff;
-
-      color: #475569;
-
-      font-size: 13px;
-
-      font-weight: 800;
-
-      line-height: 1.2;
-
-      text-shadow: none;
-
-      box-shadow:
-        0 2px 6px rgba(0,0,0,.08);
-
-      white-space: nowrap;
-
-    }
-
-
-    .preview-notion-home:hover {
-
-      background: #f8fafc;
-
-    }
-
-
-    .preview-notion-home:active {
-
-      transform:
-        translateY(1px);
-
-      box-shadow:
-        0 1px 3px rgba(0,0,0,.10);
-
-    }
-
-
-    .preview-notion-home:focus {
-
-      outline: none;
-
-    }
-
-
     .preview-refresh:hover {
 
       background: #f8fafc;
@@ -1624,15 +1558,6 @@
 
       }
 
-
-      .preview-notion-home {
-
-        padding: 8px 9px;
-
-        font-size: 12px;
-
-      }
-
     }
 
 
@@ -1914,16 +1839,6 @@ const GAS_URL =
 
 
 // ============================================================================
-// 🏠 푸로찜 총판 Home - 고정 Notion 페이지
-// ⭐ STEP 2의 "📖 노션 열기" 버튼에서만 사용합니다.
-// ⭐ 새 Notion 페이지를 만들거나 현재 등록 페이지로 이동하지 않습니다.
-// ============================================================================
-
-const NOTION_HOME_URL =
-  "https://app.notion.com/p/Home-2cbaf68cc87780f78e5fca7ea015cb96";
-
-
-// ============================================================================
 // ⭐ 2. 음성인식
 // ============================================================================
 
@@ -1954,6 +1869,22 @@ let isRecording = false;
 let finishRequested = false;
 
 let recognitionRunning = false;
+
+/*
+ * ⭐⭐⭐ 모바일 음성인식 자동 재시작용 타이머
+ *
+ * 모바일 브라우저에서는
+ * recognition.continuous = true 여도
+ * 사용자가 말을 잠깐 쉬거나 천천히 말할 때
+ * 음성인식 엔진이 onend를 발생시키는 경우가 있습니다.
+ *
+ * 이 타이머는 onend 발생 후 약간 기다렸다가
+ * 음성인식을 자동으로 다시 시작하기 위해 사용합니다.
+ *
+ * ⭐ 사용자가 "말하기 완료"를 누르면
+ * 반드시 이 타이머도 취소합니다.
+ */
+let recognitionRestartTimer = null;
 
 let finalTranscript = "";
 
@@ -2233,6 +2164,15 @@ startButton.addEventListener(
 
     if (isRecording) {
 
+      /*
+       * ⭐ 사용자가 직접 "이어서 말하기"를 눌렀던
+       * 기존 방식도 그대로 유지합니다.
+       *
+       * 다만 이제 모바일에서는 정상적인 상황이라면
+       * onend에서 자동으로 다시 시작되므로
+       * 이 버튼을 누를 필요가 훨씬 줄어듭니다.
+       */
+
       finishRequested =
         false;
 
@@ -2398,16 +2338,97 @@ startButton.addEventListener(
           false;
 
 
+        /*
+         * ====================================================================
+         * ⭐⭐⭐ 모바일 자동 재시작 핵심 부분
+         *
+         * PC에서는 continuous=true 상태가 비교적 오래 유지되지만,
+         * 모바일 브라우저에서는 사용자가 천천히 말하거나
+         * 잠깐 쉬었을 때 음성인식 엔진이 onend를 발생시키는 경우가 있습니다.
+         *
+         * 기존 코드에서는 이 순간
+         *
+         *   "이어서 말하기"
+         *
+         * 로 바뀌면서 사용자가 직접 버튼을 눌러야 했습니다.
+         *
+         * 이제는 사용자가 아직 녹음 중이고
+         * "말하기 완료"를 누르지 않았다면
+         * 약 0.4초 후 자동으로 다시 시작합니다.
+         *
+         * ⭐ 중요한 안전장치
+         *
+         * isRecording === true
+         * + finishRequested === false
+         *
+         * 두 조건을 모두 만족할 때만 재시작합니다.
+         *
+         * 따라서 사용자가 "말하기 완료"를 누른 뒤에는
+         * 절대로 다시 켜지지 않습니다.
+         * ====================================================================
+         */
+
         if (
           isRecording &&
           !finishRequested
         ) {
 
+          /*
+           * ⭐ 혹시 기존에 예약된 자동 재시작이 있다면
+           * 먼저 취소합니다.
+           *
+           * 중복 재시작 방지입니다.
+           */
+
+          clearTimeout(
+            recognitionRestartTimer
+          );
+
+
+          /*
+           * ⭐ 모바일 브라우저가
+           * recognition.start()를 다시 받을 준비를 할 수 있도록
+           * 아주 짧은 시간(0.4초) 기다립니다.
+           */
+
+          recognitionRestartTimer =
+            setTimeout(
+              function() {
+
+                /*
+                 * ⭐ 0.4초 동안 사용자가
+                 * "말하기 완료"를 눌렀다면
+                 * 여기서 재시작하지 않습니다.
+                 */
+
+                if (
+                  isRecording &&
+                  !finishRequested &&
+                  !recognitionRunning
+                ) {
+
+                  startRecognition();
+
+                }
+
+              },
+              400
+            );
+
+
+          /*
+           * ⭐ 화면은 계속 "듣는 중" 상태로 유지합니다.
+           *
+           * 기존처럼
+           * "이어서 말하기"
+           * 로 바꾸지 않습니다.
+           */
+
           startButton.disabled =
-            false;
+            true;
 
           setStartButtonLabel(
-            "이어서 말하기"
+            "듣는 중"
           );
 
           finishButton.disabled =
@@ -2417,6 +2438,11 @@ startButton.addEventListener(
           if (displayedTranscript) {
 
             inputResult.innerHTML =
+
+              '<div class="listening">' +
+              '🎙️ 듣고 있어요...<br><br>' +
+              '</div>' +
+
               escapeHtml(
                 displayedTranscript
               );
@@ -2445,6 +2471,19 @@ startButton.addEventListener(
           event.error ===
           "not-allowed"
         ) {
+
+          /*
+           * ⭐ 마이크 권한 오류이므로
+           * 혹시 예약되어 있는 자동 재시작도 취소합니다.
+           */
+
+          clearTimeout(
+            recognitionRestartTimer
+          );
+
+          recognitionRestartTimer =
+            null;
+
 
           inputResult.innerHTML =
             '<div class="error">' +
@@ -2942,6 +2981,24 @@ function finishRecording() {
   clearTimeout(
     recordingTimer
   );
+
+
+  /*
+   * ⭐⭐⭐ 모바일 자동 재시작 예약 취소
+   *
+   * onend에서 0.4초 후 자동 재시작하도록 예약되어 있더라도
+   * 사용자가 "말하기 완료"를 누른 순간에는
+   * 그 예약을 반드시 취소합니다.
+   *
+   * 그래야 완료 후 음성인식이 다시 켜지는 일이 없습니다.
+   */
+
+  clearTimeout(
+    recognitionRestartTimer
+  );
+
+  recognitionRestartTimer =
+    null;
 
 
   if (recognition) {
@@ -4118,22 +4175,6 @@ function showPreview(data) {
 
         '</button>' +
 
-
-        /*
-         * ⭐⭐⭐ STEP 2의 "📖 노션 열기" 버튼
-         *
-         * 현재 등록 중인 페이지가 아니라
-         * 항상 고정된 "푸로찜 총판 Home"으로 이동합니다.
-         */
-        '<button ' +
-        'type="button" ' +
-        'id="previewNotionHomeButton" ' +
-        'class="preview-notion-home">' +
-
-          '📖 노션 열기' +
-
-        '</button>' +
-
       '</div>' +
 
 
@@ -4600,32 +4641,6 @@ function showPreview(data) {
     .addEventListener(
       "click",
       refreshInitialDataForPreview
-    );
-
-
-  /*
-   * ⭐⭐⭐ "📖 노션 열기" 버튼 이벤트
-   *
-   * STEP 2에서 누르면 고정된
-   * "푸로찜 총판 Home" Notion 페이지를 새 탭으로 엽니다.
-   *
-   * ⭐ 기존 Notion 등록 기능과는 완전히 별개입니다.
-   */
-
-  document
-    .getElementById(
-      "previewNotionHomeButton"
-    )
-    .addEventListener(
-      "click",
-      function() {
-
-        window.open(
-          NOTION_HOME_URL,
-          "_blank"
-        );
-
-      }
     );
 
 }
@@ -5548,6 +5563,22 @@ function resetForNewRecording() {
   clearTimeout(
     recordingTimer
   );
+
+
+  /*
+   * ⭐⭐⭐ 모바일 자동 재시작 예약 취소
+   *
+   * STEP 2에서 "처음으로 돌아가기"를 누르거나
+   * 새 입력을 시작할 때도
+   * 혹시 남아 있는 자동 재시작 예약을 제거합니다.
+   */
+
+  clearTimeout(
+    recognitionRestartTimer
+  );
+
+  recognitionRestartTimer =
+    null;
 
 
   if (recognition) {
