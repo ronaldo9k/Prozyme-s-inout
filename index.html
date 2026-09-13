@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json?v=1">
   <link rel="icon" href="R9.png?v=1" type="image/png">
   <link rel="apple-touch-icon" href="R9.png?v=1">
-  
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -1633,6 +1633,88 @@
 
       }
 
+
+      /* ======================================================================
+         🆕 모바일 STEP 2 상단 레이아웃 최종 보정
+         
+         ⭐ PC 화면은 전혀 건드리지 않습니다.
+         ⭐ 모바일에서만 적용됩니다.
+         
+         해결 내용
+         ① "← 입력 화면" 두 줄 방지
+         ② 상단 3개 버튼의 폭을 균형 있게 사용
+         ③ 버튼 사이 간격을 조금 줄임
+         ④ 모바일에서 버튼 글자 크기와 좌우 여백을 소폭 축소
+         ⑤ 오른쪽 "STEP 2 · 확인"은 모바일에서 "STEP 2"로만 표시
+         ⑥ 기존 JavaScript / 기능 / 버튼 ID는 전혀 변경하지 않음
+         ====================================================================== */
+
+      .preview-top {
+
+        gap: 4px;
+
+      }
+
+
+      .preview-actions {
+
+        flex: 1 1 auto;
+
+        min-width: 0;
+
+        gap: 3px;
+
+      }
+
+
+      .preview-back,
+      .preview-refresh,
+      .preview-notion-home {
+
+        flex: 1 1 0;
+
+        min-width: 0;
+
+        padding: 7px 5px;
+
+        font-size: 11px;
+
+        line-height: 1.1;
+
+        white-space: nowrap;
+
+        letter-spacing: -.15px;
+
+      }
+
+
+      .preview-step {
+
+        flex: 0 0 auto;
+
+        min-width: 0;
+
+        font-size: 0;
+
+        white-space: nowrap;
+
+      }
+
+
+      .preview-step::after {
+
+        content: "STEP 2";
+
+        font-size: 11px;
+
+        font-weight: 900;
+
+        color: #64748b;
+
+        white-space: nowrap;
+
+      }
+
     }
 
 
@@ -1725,6 +1807,41 @@
       .main-button-label {
 
         font-size: 17px;
+
+      }
+
+
+      /* ======================================================================
+         🆕 420px 이하 초소형 모바일에서도 STEP 2 상단을 한 줄 유지
+         
+         ⭐ 기존 기능에는 전혀 영향을 주지 않습니다.
+         ====================================================================== */
+
+      .preview-actions {
+
+        gap: 2px;
+
+      }
+
+
+      .preview-back,
+      .preview-refresh,
+      .preview-notion-home {
+
+        padding-left: 3px;
+
+        padding-right: 3px;
+
+        font-size: 10px;
+
+        letter-spacing: -.2px;
+
+      }
+
+
+      .preview-step::after {
+
+        font-size: 10px;
 
       }
 
